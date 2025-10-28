@@ -1,0 +1,31 @@
+---
+- block:
+  - name: Check if helm is installed
+    ansible.builtin.command: command -v helm
+    register: git_helm
+    ignore_errors: true
+
+  - name: Install helm if not present
+    when: git_helm.rc != 0
+    become: true
+    ansible.builtin.shell: |
+      curl -LO https://get.helm.sh/helm-{{ rhpds_build_secured_dev_workflows_bootstrap_helm_cli_version }}-linux-amd64.tar.gz
+      tar -zxvf helm-{{ rhpds_build_secured_dev_workflows_bootstrap_helm_cli_version }}-linux-amd64.tar.gz
+      mv linux-amd64/helm /usr/local/bin/helm
+    args:
+      chdir: /tmp
+
+  - name: Clone janus demo repository
+    ansible.builtin.git:
+      accept_hostkey: true
+      force: true
+      repo: "{{ rhpds_build_secured_dev_workflows_bootstrap_infra_bootstrap_repo }}"
+      dest: "~/infra-bootstrap"
+      version: "{{ rhpds_build_secured_dev_workflows_bootstrap_infra_bootstrap_repo_revision }}"
+    environment:
+      GIT_SSL_NO_VERIFY: "true"
+
+  - name: Setup Openshift Gitops
+    ansible.builtin.include_tasks:
+      file: ./setup_openshift_gitops.yml
+  delegate_to: bastion
