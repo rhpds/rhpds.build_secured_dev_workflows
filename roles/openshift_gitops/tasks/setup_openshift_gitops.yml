@@ -36,7 +36,7 @@
   shell: |
     oc patch secret argocd-cluster -n {{ item }} \
     -p '{"stringData": {
-      "admin.password": "{{ rhpds_build_secured_dev_workflows_bootstrap_argocd_password }}"
+      "admin.password": "{{ rhpds_build_secured_dev_workflows_openshfit_gitops_argocd_password }}"
     }}'
     oc delete secret argocd-secret -n {{ item }}
   loop:

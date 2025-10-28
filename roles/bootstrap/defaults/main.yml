@@ -1,6 +1,0 @@
----
-rhpds_build_secured_dev_workflows_bootstrap_helm_cli_version: v3.18.4
-rhpds_build_secured_dev_workflows_bootstrap_infra_bootstrap_repo: https://github.com/treddy08/janus-idp-bootstrap.git
-rhpds_build_secured_dev_workflows_bootstrap_infra_bootstrap_repo_revision: main
-rhpds_build_secured_dev_workflows_bootstrap_argocd_password: "{{
-  common_password | default(lookup('password', '/dev/null chars=ascii_letters,digits '~ 'length=' ~ 10)) }}"

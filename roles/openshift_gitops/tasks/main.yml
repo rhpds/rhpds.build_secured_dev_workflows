@@ -9,8 +9,8 @@
     when: git_helm.rc != 0
     become: true
     ansible.builtin.shell: |
-      curl -LO https://get.helm.sh/helm-{{ rhpds_build_secured_dev_workflows_bootstrap_helm_cli_version }}-linux-amd64.tar.gz
-      tar -zxvf helm-{{ rhpds_build_secured_dev_workflows_bootstrap_helm_cli_version }}-linux-amd64.tar.gz
+      curl -LO https://get.helm.sh/helm-{{ rhpds_build_secured_dev_workflows_openshfit_gitops_helm_cli_version }}-linux-amd64.tar.gz
+      tar -zxvf helm-{{ rhpds_build_secured_dev_workflows_openshfit_gitops_helm_cli_version }}-linux-amd64.tar.gz
       mv linux-amd64/helm /usr/local/bin/helm
     args:
       chdir: /tmp
@@ -19,9 +19,9 @@
     ansible.builtin.git:
       accept_hostkey: true
       force: true
-      repo: "{{ rhpds_build_secured_dev_workflows_bootstrap_infra_bootstrap_repo }}"
+      repo: "{{ rhpds_build_secured_dev_workflows_openshfit_gitops_infra_bootstrap_repo }}"
       dest: "~/infra-bootstrap"
-      version: "{{ rhpds_build_secured_dev_workflows_bootstrap_infra_bootstrap_repo_revision }}"
+      version: "{{ rhpds_build_secured_dev_workflows_openshfit_gitops_infra_bootstrap_repo_revision }}"
     environment:
       GIT_SSL_NO_VERIFY: "true"
 
