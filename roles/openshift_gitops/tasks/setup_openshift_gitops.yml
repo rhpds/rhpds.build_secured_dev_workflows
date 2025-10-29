@@ -53,55 +53,34 @@
   retries: 120
   delay: 10
 
-- name: Patch janus-argocd admin password
+- name: Patch {{ item }} admin password
   kubernetes.core.k8s:
     api_version: v1
     kind: Secret
     name: argocd-cluster
-    namespace: janus-argocd
+    namespace: "{{ item }}"
     merge_type: merge
     definition:
       stringData:
         admin.password: "{{ rhpds_build_secured_dev_workflows_openshfit_gitops_argocd_password }}"
+  loop:
+  - janus-argocd
+  - openshift-gitops
   register: r_patch_secret
   until: r_patch_secret is succeeded
   retries: 120
   delay: 10
 
-- name: Delete janus-argocd main secret to trigger regeneration
+- name: Delete {{ item }} main secret to trigger regeneration
   kubernetes.core.k8s:
     api_version: v1
     kind: Secret
     name: argocd-secret
-    namespace: janus-argocd
+    namespace: "{{ item }}"
     state: absent
-  register: r_delete_secret
-  until: r_delete_secret is succeeded
-  retries: 120
-  delay: 10
-
-- name: Patch openshift-gitops admin password
-  kubernetes.core.k8s:
-    api_version: v1
-    kind: Secret
-    name: argocd-cluster
-    namespace: openshift-gitops
-    merge_type: merge
-    definition:
-      stringData:
-        admin.password: "{{ rhpds_build_secured_dev_workflows_openshfit_gitops_argocd_password }}"
-  register: r_patch_secret
-  until: r_patch_secret is succeeded
-  retries: 120
-  delay: 10
-
-- name: Delete openshift-gitops main secret to trigger regeneration
-  kubernetes.core.k8s:
-    api_version: v1
-    kind: Secret
-    name: argocd-secret
-    namespace: openshift-gitops
-    state: absent
+  loop:
+  - janus-argocd
+  - openshift-gitops
   register: r_delete_secret
   until: r_delete_secret is succeeded
   retries: 120
