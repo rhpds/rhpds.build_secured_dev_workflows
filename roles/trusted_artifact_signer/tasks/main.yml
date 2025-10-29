@@ -1,5 +1,5 @@
 ---
-- name: Install Trusted Profile Analyzer Operator
+- name: Install Trusted Artifact Signer Operator
   ansible.builtin.include_role:
     name: install_operator
   vars:

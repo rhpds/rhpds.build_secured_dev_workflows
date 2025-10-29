@@ -13,3 +13,19 @@
     install_operator_catalogsource_setup: "{{ rhpds_build_secured_dev_workflows_trusted_profile_analyzer_use_catalog_source }}"
     install_operator_catalogsource_image: "{{ rhpds_build_secured_dev_workflows_trusted_profile_analyzer_catalogsource_image }}"
     install_operator_catalogsource_image_tag: "{{ rhpds_build_secured_dev_workflows_trusted_profile_analyzer_catalogsource_tag }}"
+
+- name: Generate pgsql user password
+  ansible.builtin.set_fact:
+    _rhpds_build_secured_dev_workflows_trusted_profile_analyzer_pgsql_password: >-
+      {{ lookup('password', '/dev/null chars=ascii_letters,digits length=10') }}
+
+- name: Create Trusted Profile Analyzer PSQL deployment
+  kubernetes.core.k8s:
+    state: present
+    namespace: "{{ rhpds_build_secured_dev_workflows_trusted_profile_analyzer_namespace }}"
+    template: "{{ item }}"
+  loop:
+  - postgres-database-user-secret.yml.j2
+  - postgres-database-pvc.yml.j2
+  - postgres-database-deployment.yml.j2
+  - postgres-database-svc.yml.j2
