@@ -1,0 +1,9 @@
+galaxy_info:
+  role_name: trusted_artifact_signer
+  author: treddy
+  description: trusted profile nalyzer
+  license: "GPLv2"
+  min_ansible_version: "2.9"
+  galaxy_tags:
+    - bastion
+  dependencies: []
