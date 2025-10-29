@@ -28,4 +28,3 @@
   - name: Setup Openshift Gitops
     ansible.builtin.include_tasks:
       file: ./setup_openshift_gitops.yml
-  delegate_to: bastion
