@@ -3,7 +3,7 @@ kind: KeycloakRealmImport
 metadata:
   labels:
     app: keycloak
-  name: tpa
+  name: {{ rhpds_build_secured_dev_workflows_trusted_profile_analyzer_keycloak_realm }}
 spec:
   keycloakCRName: keycloak
   realm:
@@ -1644,10 +1644,10 @@ spec:
     supportedLocales: []
     userManagedAccessAllowed: false
     users:
-      - username: admin
+      - username: {{ rhpds_build_secured_dev_workflows_trusted_profile_analyzer_admin_username }}
         credentials:
           - type: password
-            value: password
+            value: {{ rhpds_build_secured_dev_workflows_trusted_profile_analyzer_admin_password }}
             temporary: false
         disableableCredentialTypes: []
         emailVerified: false
