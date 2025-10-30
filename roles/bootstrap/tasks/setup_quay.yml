@@ -159,3 +159,21 @@
     namespace: tssc-app-development
   - dockerconfigjson: "{{ _dockerconfigjson_readonly_compact }}"
     namespace: tssc-app-prod
+
+- name: Attach both pull and mount secrets to pipeline SA
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: ServiceAccount
+      metadata:
+        name: pipeline
+        namespace: "{{ item }}"
+      imagePullSecrets:
+        - name: tssc-image-registry-auth
+      secrets:
+        - name: tssc-image-registry-auth
+  loop:
+  - tssc-app-ci
+  - tssc-app-development
+  - tssc-app-prod
