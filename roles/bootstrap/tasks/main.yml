@@ -1,0 +1,13 @@
+---
+- name: Create kubeconfig
+  ansible.builtin.shell: |
+    oc login --token {{ rhpds_build_secured_dev_workflows_bootstrap_openshift_cluster_admin_token }} {{
+    rhpds_build_secured_dev_workflows_bootstrap_openshift_api_url }} --insecure-skip-tls-verify
+
+- name: Create a  directory for lab assets
+  ansible.builtin.file:
+    path: /home/{{ student_name }}/lab-assets
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0755'

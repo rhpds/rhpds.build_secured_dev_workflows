@@ -29,3 +29,12 @@
   - postgres-database-pvc.yml.j2
   - postgres-database-deployment.yml.j2
   - postgres-database-svc.yml.j2
+
+- name: Template out secret and TPA CR
+  kubernetes.core.template:
+    src: "{{ item }}.j2"
+    dest: "/home/{{ student_name }}/lab-assets/{{ item }}"
+  loop:
+  - keycloak_tpa_cli_credentials.yml
+  - keycloak_tpa_realm.yml
+  delegate_to: bastion
