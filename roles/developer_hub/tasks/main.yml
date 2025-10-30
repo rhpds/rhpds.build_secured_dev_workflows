@@ -1,0 +1,4 @@
+---
+- name: Setup Quay
+  ansible.builtin.include_tasks:
+    file: ./setup_quay.yml

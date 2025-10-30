@@ -1,4 +1,3 @@
 ---
 rhpds_build_secured_dev_workflows_bootstrap_openshift_api_url: "{{ openshift_api_url | default('') }}"
 rhpds_build_secured_dev_workflows_bootstrap_openshift_cluster_admin_token: "{{ openshift_cluster_admin_token | default('') }}"
-rhpds_build_secured_dev_workflows_bootstrap_quay_namespace: quay-enterprise
