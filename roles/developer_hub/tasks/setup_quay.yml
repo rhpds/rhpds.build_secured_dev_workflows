@@ -42,7 +42,7 @@
     body_format: json
     body:
       name: tssc
-    status_code: [201, 400]  # 400 = already exists
+    status_code: [201, 400]
     validate_certs: false
 
 - name: Create robot accounts in org tssc
