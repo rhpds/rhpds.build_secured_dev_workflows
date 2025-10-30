@@ -9,7 +9,5 @@
     ansible.builtin.file:
       path: /home/{{ student_name }}/lab-assets
       state: directory
-      owner: "{{ ansible_user }}"
-      group: "{{ ansible_user }}"
       mode: '0755'
   delegate_to: bastion
