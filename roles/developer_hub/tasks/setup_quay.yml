@@ -42,7 +42,7 @@
 - name: Set Quay details
   set_fact:
     _rhpds_build_secured_dev_workflows_developer_hub_quay_token: "{{ lookup('agnosticd_user_data', 'quay_admin_token') }}"
-    _rhpds_build_secured_dev_workflows_developer_hub_quay_url: https://quay-{{ rhpds_build_secured_dev_workflows_developer_hub_quay_namespace }}.{{ openshift_cluster_ingress_domain }}
+    _rhpds_build_secured_dev_workflows_developer_hub_quay_url: https://quay-{{ guid }}.{{ openshift_cluster_ingress_domain }}
 
 - name: Create Quay organization tssc
   uri:
