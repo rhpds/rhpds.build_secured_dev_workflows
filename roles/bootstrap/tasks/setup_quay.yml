@@ -1,0 +1,161 @@
+---
+- name: Get Quay database pod and ensure it's running
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Pod
+    namespace: "{{ rhpds_build_secured_dev_workflows_bootstrap_quay_namespace }}"
+    label_selectors:
+    - quay-component = postgres
+  register: r_quay_database_pod
+  retries: 40
+  delay: 5
+  until:
+  - r_quay_database_pod.resources is defined
+  - r_quay_database_pod.resources | length == 1
+  - r_quay_database_pod.resources[0].status is defined
+  - r_quay_database_pod.resources[0].status.phase is defined
+  - r_quay_database_pod.resources[0].status.phase == "Running"
+
+- name: Extend Quay token expiration (using shell)
+  ansible.builtin.shell: |
+    oc exec {{ r_quay_database_pod.resources[0].metadata.name }} -n {{
+    rhpds_build_secured_dev_workflows_bootstrap_quay_namespace }} -- psql -d \
+    quay-quay-database -c \
+    "update public.oauthaccesstoken set expires_at = '2300-12-31 00:00:00' where id = 1;"
+  register: _r_ext__quay_token_exp
+  until: _r_ext__quay_token_exp.rc == 0
+  retries: 5
+  delay: 30
+
+- name: Set Quay details
+  set_fact:
+    rhpds_build_secured_dev_workflows_bootstrap_quay_token: "{{ lookup('agnosticd_user_data', 'quay_admin_token') }}"
+    rhpds_build_secured_dev_workflows_bootstrap_quay_url: https://quay-{{ rhpds_build_secured_dev_workflows_bootstrap_quay_namespace }}.{{ openshift_cluster_ingress_domain }}
+
+- name: Create Quay organization tssc
+  uri:
+    url: "{{ rhpds_build_secured_dev_workflows_bootstrap_quay_url }}/api/v1/organization/"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ rhpds_build_secured_dev_workflows_bootstrap_quay_token }}"
+      Content-Type: "application/json"
+    body_format: json
+    body:
+      name: tssc
+    status_code: [201, 400]  # 400 = already exists
+    validate_certs: false
+
+- name: Create robot accounts in org tssc
+  uri:
+    url: "{{ rhpds_build_secured_dev_workflows_bootstrap_quay_url }}/api/v1/organization/tssc/robots/{{ item }}"
+    method: PUT
+    headers:
+      Authorization: "Bearer {{ rhpds_build_secured_dev_workflows_bootstrap_quay_token }}"
+    return_content: true
+    status_code: [201, 400]
+    validate_certs: false
+  loop:
+  - tssc_rw
+  - tssc_ro
+  register: robot_create_results
+
+- name: Assign default prototype permissions for robots
+  uri:
+    url: "{{ rhpds_build_secured_dev_workflows_bootstrap_quay_url }}/api/v1/organization/tssc/prototypes"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ rhpds_build_secured_dev_workflows_bootstrap_quay_token }}"
+      Content-Type: "application/json"
+    body_format: json
+    body:
+      role: "{{ item.role }}"
+      delegate:
+        kind: "user"
+        name: "tssc+{{ item.name }}"
+    status_code: [200, 400]
+    validate_certs: false
+  loop:
+  - name: "tssc_rw"
+    role: "admin"
+  - name: "tssc_ro"
+    role: "read"
+
+- name: Create a team in Quay organization
+  uri:
+    url: "{{ rhpds_build_secured_dev_workflows_bootstrap_quay_url }}/api/v1/organization/tssc/team/tssc-creator"
+    method: PUT
+    headers:
+      Authorization: "Bearer {{ rhpds_build_secured_dev_workflows_bootstrap_quay_token }}"
+      Content-Type: "application/json"
+    body_format: json
+    body:
+      role: "creator"
+    status_code: [200, 201]
+
+- name: Add user to the team
+  uri:
+    url: "{{ rhpds_build_secured_dev_workflows_bootstrap_quay_url }}/api/v1/organization/tssc/team/tssc-creator/members/tssc+tssc_rw"
+    method: PUT
+    headers:
+      Authorization: "Bearer {{ rhpds_build_secured_dev_workflows_bootstrap_quay_token }}"
+    status_code: 200
+
+- name: Get robot tokens
+  ansible.builtin.set_fact:
+    rhpds_build_secured_dev_workflows_bootstrap_quay_rw_token: "{{ robot_create_results.results[0].json.token }}"
+    rhpds_build_secured_dev_workflows_bootstrap_quay_ro_token: "{{ robot_create_results.results[1].json.token }}"
+
+- name: Create auth b64
+  ansible.builtin.set_fact:
+    rhpds_build_secured_dev_workflows_bootstrap_quay_rw_token_b64: "tssc+tssc_rw:{{ rhpds_build_secured_dev_workflows_bootstrap_quay_rw_token | b64encode }}"
+    rhpds_build_secured_dev_workflows_bootstrap_quay_ro_token_b64: "tssc+tssc_ro:{{ rhpds_build_secured_dev_workflows_bootstrap_quay_ro_token | b64encode }}"
+
+- name: Set docker auth tokens for write and read pretty
+  ansible.builtin.set_fact:
+    _dockerconfigjson_write: >-
+      {
+        "auths": {
+          "quay-{{ rhpds_build_secured_dev_workflows_bootstrap_quay_namespace }}.{{ openshift_cluster_ingress_domain }}": {
+            "auth": "{{ rhpds_build_secured_dev_workflows_bootstrap_quay_rw_token_b64 }}",
+            "email": "admin@{{ openshift_cluster_ingress_domain }}",
+            "password": "{{ rhpds_build_secured_dev_workflows_bootstrap_quay_rw_token }}",
+            "username": "{{ tssc+tssc_rw }}"
+          }
+        }
+      }
+    _dockerconfigjson_readonly: >-
+      {
+        "auths": {
+          "quay-{{ rhpds_build_secured_dev_workflows_bootstrap_quay_namespace }}.{{ openshift_cluster_ingress_domain }}": {
+            "auth": "{{ rhpds_build_secured_dev_workflows_bootstrap_quay_ro_token_b64 }}",
+            "email": "admin@{{ openshift_cluster_ingress_domain }}",
+            "password": "{{ rhpds_build_secured_dev_workflows_bootstrap_quay_ro_token }}",
+            "username": "{{ tssc+tssc_ro }}"
+          }
+        }
+      }
+
+- name: Compact dockerconfigjson
+  ansible.builtin.set_fact:
+    _dockerconfigjson_write_compact: "{{ _dockerconfigjson_write | from_json | to_json }}"
+    _dockerconfigjson_readonly_compact: "{{ _dockerconfigjson_readonly | from_json | to_json }}"
+
+- name: Create Docker pull secret
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: tssc-image-registry-auth
+        namespace: "{{ item.namespace }}"
+      type: kubernetes.io/dockerconfigjson
+      data:
+        .dockerconfigjson: "{{ item.dockerconfigjson | b64encode }}"
+  loop:
+  - dockerconfigjson: "{{ _dockerconfigjson_write_compact }}"
+    namespace: tssc-app-ci
+  - dockerconfigjson: "{{ _dockerconfigjson_readonly_compact }}"
+    namespace: tssc-app-development
+  - dockerconfigjson: "{{ _dockerconfigjson_readonly_compact }}"
+    namespace: tssc-app-prod

@@ -37,5 +37,5 @@
   loop:
   - keycloak_tpa_cli_credentials.yml
   - keycloak_tpa_realm.yml
-  - tpa_instance.yml.j2
+  - tpa_instance.yml
   delegate_to: bastion

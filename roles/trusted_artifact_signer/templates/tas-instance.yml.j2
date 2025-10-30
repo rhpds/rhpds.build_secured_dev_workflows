@@ -1,0 +1,74 @@
+apiVersion: rhtas.redhat.com/v1alpha1
+kind: Securesign
+metadata:
+  name: trusted-artifact-signer
+spec:
+  ctlog:
+    monitoring:
+      enabled: false
+    trillian:
+      port: 8091
+  fulcio:
+    certificate:
+      commonName: fulcio.hostname
+      organizationEmail: trusted-artifact-signer@company.dev
+      organizationName: TSSC
+    config:
+      OIDCIssuers:
+        - ClientID: {{ rhpds_build_secured_dev_workflows_trusted_artifact_signer_chains_realm_client_id }}
+          Issuer: 'https://sso.{{ openshift_cluster_ingress_domain }}/realms/{{ rhpds_build_secured_dev_workflows_trusted_artifact_signer_chains_realm }}'
+          IssuerURL: 'https://sso.{{ openshift_cluster_ingress_domain }}/realms/{{ rhpds_build_secured_dev_workflows_trusted_artifact_signer_chains_realm }}'
+          Type: email
+    ctlog:
+      port: 80
+      prefix: trusted-artifact-signer
+    externalAccess:
+      enabled: true
+    monitoring:
+      enabled: false
+  rekor:
+    backFillRedis:
+      enabled: true
+      schedule: 0 0 * * *
+    externalAccess:
+      enabled: true
+    monitoring:
+      enabled: false
+    pvc:
+      accessModes:
+        - ReadWriteOnce
+      retain: true
+      size: 5Gi
+    rekorSearchUI:
+      enabled: true
+    sharding: []
+    signer:
+      kms: secret
+    trillian:
+      port: 8091
+  trillian:
+    database:
+      create: true
+      pvc:
+        accessModes:
+          - ReadWriteOnce
+        retain: true
+        size: 5Gi
+      tls: {}
+    monitoring:
+      enabled: false
+  tuf:
+    externalAccess:
+      enabled: true
+    keys:
+      - name: rekor.pub
+      - name: ctfe.pub
+      - name: fulcio_v1.crt.pem
+    port: 80
+    pvc:
+      accessModes:
+        - ReadWriteOnce
+      retain: true
+      size: 100Mi
+    rootKeySecretRef:
+      name: tuf-root-keys

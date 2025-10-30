@@ -1,0 +1,56 @@
+spec:
+  addon:
+    params:
+    - name: clusterTasks
+      value: "true"
+    - name: pipelineTemplates
+      value: "true"
+    - name: communityClusterTasks
+      value: "true"
+  chain:
+    artifacts.oci.format: simplesigning
+    artifacts.oci.signer: x509
+    artifacts.oci.storage: oci
+    artifacts.pipelinerun.format: in-toto
+    artifacts.pipelinerun.storage: oci
+    artifacts.taskrun.format: in-toto
+    artifacts.taskrun.signer: x509
+    artifacts.taskrun.storage: oci
+    disabled: false
+    options:
+      deployments:
+        tekton-chains-controller:
+          metadata:
+            creationTimestamp: null
+          spec:
+            selector: null
+            template:
+              metadata:
+                creationTimestamp: null
+              spec:
+                containers:
+                - env:
+                  - name: TUF_ROOT
+                    value: /tuf
+                  name: tekton-chains-controller
+                  volumeMounts:
+                  - mountPath: /tuf
+                    name: tuf
+                  - mountPath: /var/run/sigstore/cosign
+                    name: oidc-info
+                volumes:
+                - name: tuf
+                - name: oidc-info
+                  secret:
+                    items:
+                    - key: id-token
+                      path: oidc-token
+                    secretName: oidc-token
+      disabled: false
+    signers.x509.fulcio.address: https://fulcio-server-{{ rhpds_build_secured_dev_workflows_trusted_artifact_signer_namespace }}.{{ openshift_cluster_ingress_domain }}
+    signers.x509.fulcio.enabled: true
+    signers.x509.fulcio.issuer: https://sso.{{ openshift_cluster_ingress_domain }}/realms/{{ rhpds_build_secured_dev_workflows_trusted_artifact_signer_chains_realm }}
+    signers.x509.identity.token.file: /var/run/sigstore/cosign/oidc-token
+    signers.x509.tuf.mirror.url: http://tuf-{{ rhpds_build_secured_dev_workflows_trusted_artifact_signer_namespace }}.{{ openshift_cluster_ingress_domain }}
+    transparency.enabled: "true"
+    transparency.url: https://rekor-server-{{ rhpds_build_secured_dev_workflows_trusted_artifact_signer_namespace }}.{{ openshift_cluster_ingress_domain }}

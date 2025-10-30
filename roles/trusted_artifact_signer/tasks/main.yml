@@ -11,3 +11,14 @@
     install_operator_catalogsource_setup: "{{ rhpds_build_secured_dev_workflows_trusted_artifact_signer_use_catalog_source }}"
     install_operator_catalogsource_image: "{{ rhpds_build_secured_dev_workflows_trusted_artifact_signer_catalogsource_image }}"
     install_operator_catalogsource_image_tag: "{{ rhpds_build_secured_dev_workflows_trusted_artifact_signer_catalogsource_tag }}"
+
+- name: Template out TAS assets
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: "/home/{{ student_name }}/lab-assets/{{ item }}"
+  loop:
+  - oidc-info-secret.yml
+  - oidc-refresher-app.yml
+  - tekton-chains-patch.yml
+  - tas-instance.yml
+  delegate_to: bastion
