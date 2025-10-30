@@ -29,15 +29,15 @@
 
 - name: Set Quay details
   set_fact:
-    rhpds_build_secured_dev_workflows_bootstrap_quay_token: "{{ lookup('agnosticd_user_data', 'quay_admin_token') }}"
-    rhpds_build_secured_dev_workflows_bootstrap_quay_url: https://quay-{{ rhpds_build_secured_dev_workflows_bootstrap_quay_namespace }}.{{ openshift_cluster_ingress_domain }}
+    _rhpds_build_secured_dev_workflows_bootstrap_quay_token: "{{ lookup('agnosticd_user_data', 'quay_admin_token') }}"
+    _rhpds_build_secured_dev_workflows_bootstrap_quay_url: https://quay-{{ rhpds_build_secured_dev_workflows_bootstrap_quay_namespace }}.{{ openshift_cluster_ingress_domain }}
 
 - name: Create Quay organization tssc
   uri:
-    url: "{{ rhpds_build_secured_dev_workflows_bootstrap_quay_url }}/api/v1/organization/"
+    url: "{{ _rhpds_build_secured_dev_workflows_bootstrap_quay_url }}/api/v1/organization/"
     method: POST
     headers:
-      Authorization: "Bearer {{ rhpds_build_secured_dev_workflows_bootstrap_quay_token }}"
+      Authorization: "Bearer {{ _rhpds_build_secured_dev_workflows_bootstrap_quay_token }}"
       Content-Type: "application/json"
     body_format: json
     body:
@@ -47,10 +47,10 @@
 
 - name: Create robot accounts in org tssc
   uri:
-    url: "{{ rhpds_build_secured_dev_workflows_bootstrap_quay_url }}/api/v1/organization/tssc/robots/{{ item }}"
+    url: "{{ _rhpds_build_secured_dev_workflows_bootstrap_quay_url }}/api/v1/organization/tssc/robots/{{ item }}"
     method: PUT
     headers:
-      Authorization: "Bearer {{ rhpds_build_secured_dev_workflows_bootstrap_quay_token }}"
+      Authorization: "Bearer {{ _rhpds_build_secured_dev_workflows_bootstrap_quay_token }}"
     return_content: true
     status_code: [201, 400]
     validate_certs: false
@@ -61,10 +61,10 @@
 
 - name: Assign default prototype permissions for robots
   uri:
-    url: "{{ rhpds_build_secured_dev_workflows_bootstrap_quay_url }}/api/v1/organization/tssc/prototypes"
+    url: "{{ _rhpds_build_secured_dev_workflows_bootstrap_quay_url }}/api/v1/organization/tssc/prototypes"
     method: POST
     headers:
-      Authorization: "Bearer {{ rhpds_build_secured_dev_workflows_bootstrap_quay_token }}"
+      Authorization: "Bearer {{ _rhpds_build_secured_dev_workflows_bootstrap_quay_token }}"
       Content-Type: "application/json"
     body_format: json
     body:
@@ -82,10 +82,10 @@
 
 - name: Create a team in Quay organization
   uri:
-    url: "{{ rhpds_build_secured_dev_workflows_bootstrap_quay_url }}/api/v1/organization/tssc/team/tssc-creator"
+    url: "{{ _rhpds_build_secured_dev_workflows_bootstrap_quay_url }}/api/v1/organization/tssc/team/tssc-creator"
     method: PUT
     headers:
-      Authorization: "Bearer {{ rhpds_build_secured_dev_workflows_bootstrap_quay_token }}"
+      Authorization: "Bearer {{ _rhpds_build_secured_dev_workflows_bootstrap_quay_token }}"
       Content-Type: "application/json"
     body_format: json
     body:
@@ -94,21 +94,21 @@
 
 - name: Add user to the team
   uri:
-    url: "{{ rhpds_build_secured_dev_workflows_bootstrap_quay_url }}/api/v1/organization/tssc/team/tssc-creator/members/tssc+tssc_rw"
+    url: "{{ _rhpds_build_secured_dev_workflows_bootstrap_quay_url }}/api/v1/organization/tssc/team/tssc-creator/members/tssc+tssc_rw"
     method: PUT
     headers:
-      Authorization: "Bearer {{ rhpds_build_secured_dev_workflows_bootstrap_quay_token }}"
+      Authorization: "Bearer {{ _rhpds_build_secured_dev_workflows_bootstrap_quay_token }}"
     status_code: 200
 
 - name: Get robot tokens
   ansible.builtin.set_fact:
-    rhpds_build_secured_dev_workflows_bootstrap_quay_rw_token: "{{ robot_create_results.results[0].json.token }}"
-    rhpds_build_secured_dev_workflows_bootstrap_quay_ro_token: "{{ robot_create_results.results[1].json.token }}"
+    _rhpds_build_secured_dev_workflows_bootstrap_quay_rw_token: "{{ robot_create_results.results[0].json.token }}"
+    _rhpds_build_secured_dev_workflows_bootstrap_quay_ro_token: "{{ robot_create_results.results[1].json.token }}"
 
 - name: Create auth b64
   ansible.builtin.set_fact:
-    rhpds_build_secured_dev_workflows_bootstrap_quay_rw_token_b64: "tssc+tssc_rw:{{ rhpds_build_secured_dev_workflows_bootstrap_quay_rw_token | b64encode }}"
-    rhpds_build_secured_dev_workflows_bootstrap_quay_ro_token_b64: "tssc+tssc_ro:{{ rhpds_build_secured_dev_workflows_bootstrap_quay_ro_token | b64encode }}"
+    _rhpds_build_secured_dev_workflows_bootstrap_quay_rw_token_b64: "tssc+tssc_rw:{{ _rhpds_build_secured_dev_workflows_bootstrap_quay_rw_token | b64encode }}"
+    _rhpds_build_secured_dev_workflows_bootstrap_quay_ro_token_b64: "tssc+tssc_ro:{{ _rhpds_build_secured_dev_workflows_bootstrap_quay_ro_token | b64encode }}"
 
 - name: Set docker auth tokens for write and read pretty
   ansible.builtin.set_fact:
@@ -116,9 +116,9 @@
       {
         "auths": {
           "quay-{{ rhpds_build_secured_dev_workflows_bootstrap_quay_namespace }}.{{ openshift_cluster_ingress_domain }}": {
-            "auth": "{{ rhpds_build_secured_dev_workflows_bootstrap_quay_rw_token_b64 }}",
+            "auth": "{{ _rhpds_build_secured_dev_workflows_bootstrap_quay_rw_token_b64 }}",
             "email": "admin@{{ openshift_cluster_ingress_domain }}",
-            "password": "{{ rhpds_build_secured_dev_workflows_bootstrap_quay_rw_token }}",
+            "password": "{{ _rhpds_build_secured_dev_workflows_bootstrap_quay_rw_token }}",
             "username": "{{ tssc+tssc_rw }}"
           }
         }
@@ -127,9 +127,9 @@
       {
         "auths": {
           "quay-{{ rhpds_build_secured_dev_workflows_bootstrap_quay_namespace }}.{{ openshift_cluster_ingress_domain }}": {
-            "auth": "{{ rhpds_build_secured_dev_workflows_bootstrap_quay_ro_token_b64 }}",
+            "auth": "{{ _rhpds_build_secured_dev_workflows_bootstrap_quay_ro_token_b64 }}",
             "email": "admin@{{ openshift_cluster_ingress_domain }}",
-            "password": "{{ rhpds_build_secured_dev_workflows_bootstrap_quay_ro_token }}",
+            "password": "{{ _rhpds_build_secured_dev_workflows_bootstrap_quay_ro_token }}",
             "username": "{{ tssc+tssc_ro }}"
           }
         }

@@ -2,8 +2,8 @@
 - block:
   - name: Create kubeconfig
     ansible.builtin.shell: |
-      oc login --token {{ rhpds_build_secured_dev_workflows_bootstrap_openshift_cluster_admin_token }} {{
-      rhpds_build_secured_dev_workflows_bootstrap_openshift_api_url }} --insecure-skip-tls-verify
+      oc login --token {{ openshift_cluster_admin_token }} {{
+      openshift_api_url }} --insecure-skip-tls-verify
 
   - name: Create a  directory for lab assets
     ansible.builtin.file:
