@@ -15,9 +15,13 @@ spec:
       organizationName: TSSC
     config:
       OIDCIssuers:
-        - ClientID: {{ rhpds_build_secured_dev_workflows_trusted_artifact_signer_chains_realm_client_id }}
+        - ClientID: {{ rhpds_build_secured_dev_workflows_trusted_artifact_signer_client_id }}
           Issuer: 'https://sso.{{ openshift_cluster_ingress_domain }}/realms/{{ rhpds_build_secured_dev_workflows_trusted_artifact_signer_chains_realm }}'
           IssuerURL: 'https://sso.{{ openshift_cluster_ingress_domain }}/realms/{{ rhpds_build_secured_dev_workflows_trusted_artifact_signer_chains_realm }}'
+          Type: email
+        - ClientID: {{ rhpds_build_secured_dev_workflows_trusted_artifact_signer_client_id }}
+          Issuer: 'https://sso.{{ openshift_cluster_ingress_domain }}/realms/{{ rhpds_build_secured_dev_workflows_trusted_artifact_signer_sso_realm: sso }}'
+          IssuerURL: 'https://sso.{{ openshift_cluster_ingress_domain }}/realms/{{ rhpds_build_secured_dev_workflows_trusted_artifact_signer_sso_realm: sso }}'
           Type: email
     ctlog:
       port: 80
