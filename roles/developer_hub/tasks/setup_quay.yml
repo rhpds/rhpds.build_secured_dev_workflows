@@ -32,12 +32,8 @@
   kubernetes.core.k8s_exec:
     namespace: "{{ rhpds_build_secured_dev_workflows_developer_hub_quay_namespace }}"
     pod: "{{ r_quay_database_pod.resources[0].metadata.name }}"
-    command:
-      - psql
-      - -d
-      - quay-quay-database
-      - -c
-      - "update public.oauthaccesstoken set expires_at = '2300-12-31 00:00:00' where id = 1;"
+    command: >-
+      psql -d quay-quay-database -c "update public.oauthaccesstoken set expires_at = '2300-12-31 00:00:00' where id = 1;"
   register: _r_ext__quay_token_exp
   until: _r_ext__quay_token_exp.rc == 0
   retries: 5
