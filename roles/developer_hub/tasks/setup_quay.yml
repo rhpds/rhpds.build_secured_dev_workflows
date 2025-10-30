@@ -131,7 +131,7 @@
             "auth": "{{ _rhpds_build_secured_dev_workflows_developer_hub_quay_rw_token_b64 }}",
             "email": "admin@{{ openshift_cluster_ingress_domain }}",
             "password": "{{ _rhpds_build_secured_dev_workflows_developer_hub_quay_rw_token }}",
-            "username": "{{ tssc+tssc_rw }}"
+            "username": "tssc+tssc_rw"
           }
         }
       }
@@ -142,7 +142,7 @@
             "auth": "{{ _rhpds_build_secured_dev_workflows_developer_hub_quay_ro_token_b64 }}",
             "email": "admin@{{ openshift_cluster_ingress_domain }}",
             "password": "{{ _rhpds_build_secured_dev_workflows_developer_hub_quay_ro_token }}",
-            "username": "{{ tssc+tssc_ro }}"
+            "username": "tssc+tssc_ro"
           }
         }
       }
