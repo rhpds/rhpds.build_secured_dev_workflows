@@ -31,7 +31,7 @@
   - postgres-database-svc.yml.j2
 
 - name: Template out secret and TPA CR
-  kubernetes.core.template:
+  ansible.builtin.template:
     src: "{{ item }}.j2"
     dest: "/home/{{ student_name }}/lab-assets/{{ item }}"
   loop:
