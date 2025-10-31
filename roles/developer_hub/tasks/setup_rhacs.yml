@@ -24,7 +24,7 @@
     url: "https://{{ _rhpds_build_secured_dev_workflows_developer_hub_rhacs_central_host }}/v1/apitokens/generate"
     method: POST
     user: "{{ rhpds_build_secured_dev_workflows_developer_hub_rhacs_admin_user }}"
-    password: "{{ _rhpds_build_secured_dev_workflows_developer_hub_rhacs_admin_password }}"
+    password: "{{ rhpds_build_secured_dev_workflows_developer_hub_rhacs_admin_password }}"
     force_basic_auth: true
     validate_certs: false
     body_format: json
