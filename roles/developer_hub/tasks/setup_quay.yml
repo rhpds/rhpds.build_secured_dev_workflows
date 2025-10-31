@@ -125,32 +125,36 @@
 - name: Set docker auth tokens for write and read pretty
   ansible.builtin.set_fact:
     _dockerconfigjson_write: >-
-      {
-        "auths": {
-          "quay-{{ rhpds_build_secured_dev_workflows_developer_hub_quay_namespace }}.{{ openshift_cluster_ingress_domain }}": {
-            "auth": "{{ _rhpds_build_secured_dev_workflows_developer_hub_quay_rw_token_b64 }}",
-            "email": "admin@{{ openshift_cluster_ingress_domain }}",
-            "password": "{{ _rhpds_build_secured_dev_workflows_developer_hub_quay_rw_token }}",
-            "username": "tssc+tssc_rw"
+      {{
+        {
+          "auths": {
+            "quay-" + rhpds_build_secured_dev_workflows_developer_hub_quay_namespace + "." + openshift_cluster_ingress_domain: {
+              "auth": _rhpds_build_secured_dev_workflows_developer_hub_quay_rw_token_b64,
+              "email": "admin@" + openshift_cluster_ingress_domain,
+              "password": _rhpds_build_secured_dev_workflows_developer_hub_quay_rw_token,
+              "username": "tssc+tssc_rw"
+            }
           }
-        }
-      }
+        } | to_json
+      }}
     _dockerconfigjson_readonly: >-
-      {
-        "auths": {
-          "quay-{{ rhpds_build_secured_dev_workflows_developer_hub_quay_namespace }}.{{ openshift_cluster_ingress_domain }}": {
-            "auth": "{{ _rhpds_build_secured_dev_workflows_developer_hub_quay_ro_token_b64 }}",
-            "email": "admin@{{ openshift_cluster_ingress_domain }}",
-            "password": "{{ _rhpds_build_secured_dev_workflows_developer_hub_quay_ro_token }}",
-            "username": "tssc+tssc_ro"
+      {{
+        {
+          "auths": {
+              "quay-" + rhpds_build_secured_dev_workflows_developer_hub_quay_namespace + "." + openshift_cluster_ingress_domain: {
+              "auth": _rhpds_build_secured_dev_workflows_developer_hub_quay_ro_token_b64,
+              "email": "admin@" + openshift_cluster_ingress_domain,
+              "password": _rhpds_build_secured_dev_workflows_developer_hub_quay_ro_token,
+              "username": "tssc+tssc_ro"
+            }
           }
-        }
-      }
+        } | to_json
+      }}
 
 - name: Compact dockerconfigjson
   ansible.builtin.set_fact:
-    _dockerconfigjson_write_compact: "{{ _dockerconfigjson_write | from_json | to_json }}"
-    _dockerconfigjson_readonly_compact: "{{ _dockerconfigjson_readonly | from_json | to_json }}"
+    _dockerconfigjson_write_compact: "{{ _dockerconfigjson_write | to_json }}"
+    _dockerconfigjson_readonly_compact: "{{ _dockerconfigjson_readonly | to_json }}"
 
 - name: Create Docker pull secret
   kubernetes.core.k8s:
