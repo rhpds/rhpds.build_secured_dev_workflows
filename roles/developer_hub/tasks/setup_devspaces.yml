@@ -21,7 +21,7 @@
       scopes: api read_user read_repository write_repository sudo openid profile email
       confidential: false
     headers:
-      PRIVATE-TOKEN: "{{ _rhads_build_secured_dev_workflows_developer_hub_gitlab_root_token }}"
+      PRIVATE-TOKEN: "{{ _rhpds_build_secured_dev_workflows_developer_hub_gitlab_root_token }}"
     validate_certs: false
     status_code: [201]
   register: r_devspaces_app
