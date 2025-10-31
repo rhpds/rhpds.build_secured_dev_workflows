@@ -13,20 +13,20 @@
   - openshift-crb-backstage-rhdh-kubernetes-plugin-admin.yml.j2
 
 - name: Get the secret associated with the kubernetes plugin service account
-  community.kubernetes.k8s_info:
+  kubernetes.core.k8s_info:
     kind: Secret
     namespace: "{{ rhpds_build_secured_dev_workflows_developer_hub_namespace }}"
     label_selector: kubernetes.io/service-account.name=rhdh-kubernetes-plugin
-  register: result
+  register: r_k8s_plugin_sa_secret
   ignore_errors: true
   until:
-  - result is defined
-  - result.resources is defined
-  - result.resources | length > 0
-  - result.resources[0] is defined
-  - result.resources[0].data is defined
-  - result.resources[0].data.token is defined
-  - result.resources[0].data.token | length > 0
+  - r_k8s_plugin_sa_secret is defined
+  - r_k8s_plugin_sa_secret.resources is defined
+  - r_k8s_plugin_sa_secret.resources | length > 0
+  - r_k8s_plugin_sa_secret.resources[0] is defined
+  - r_k8s_plugin_sa_secret.resources[0].data is defined
+  - r_k8s_plugin_sa_secret.resources[0].data.token is defined
+  - r_k8s_plugin_sa_secret.resources[0].data.token | length > 0
 
 - name: Initialize Developer Hub catalog URL list
   ansible.builtin.set_fact:
@@ -72,7 +72,7 @@
     rhads_dh_gitlab_token: "{{ _rhpds_build_secured_dev_workflows_developer_hub_gitlab_root_token }}"
     rhads_dh_quay_url: "https://{{ rhads_secured_dev_workflows_developer_hub_quay_host }}"
     rhads_dh_quay_api_token: "{{ _rhpds_build_secured_dev_workflows_developer_hub_quay_token }}"
-    rhads_dh_k8s_serviceaccount_token: "{{ result.resources[0].data.token | b64decode }}"
+    rhads_dh_k8s_serviceaccount_token: "{{ r_k8s_plugin_sa_secret.resources[0].data.token | b64decode }}"
 
 - name: Create Developer Hub App of Apps application
   kubernetes.core.k8s:
