@@ -7,7 +7,7 @@
        _rhpds_build_secured_dev_workflows_developer_hub_gitlab_host }}/{{ location.group }}/{{
       location.repository }}
     dest: "~/{{ location.repository }}"
-    version: "{{ location.branch }}"
+    version: "{{ location.revision }}"
   environment:
     GIT_SSL_NO_VERIFY: "true"
 

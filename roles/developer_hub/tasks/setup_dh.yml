@@ -11,7 +11,7 @@
   ansible.builtin.set_fact:
     _rhads_dh_developer_hub_catalog_url: "{{ _rhads_dh_developer_hub_catalog_url + [location] }}"
   vars:
-    target: https://{{ _rhpds_build_secured_dev_workflows_developer_hub_gitlab_host }}/{{ location.group }}/{{ location.repository }}/blob/{{ location.branch }}/{{ location.file }}"
+    target: https://{{ _rhpds_build_secured_dev_workflows_developer_hub_gitlab_host }}/{{ location.group }}/{{ location.repository }}/blob/{{ location.revision }}/{{ location.file }}"
   loop: "{{ rhpds_build_secured_dev_workflows_developer_hub_catalog_locations }}"
   loop_control:
     loop_var: location
