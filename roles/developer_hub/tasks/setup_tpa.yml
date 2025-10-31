@@ -1,0 +1,6 @@
+---
+- name: Create TPA secret
+  kubernetes.core.k8s:
+    state: present
+    namespace: tssc-app-ci
+    template: "tpa-secret.yml.j2"

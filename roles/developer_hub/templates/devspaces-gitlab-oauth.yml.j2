@@ -1,0 +1,14 @@
+kind: Secret
+apiVersion: v1
+metadata:
+  name: gitlab-oauth-config
+  labels:
+    app.kubernetes.io/part-of: che.eclipse.org
+    app.kubernetes.io/component: oauth-scm-configuration
+  annotations:
+    che.eclipse.org/oauth-scm-server: gitlab
+    che.eclipse.org/scm-server-endpoint: https://{{ _rhpds_build_secured_dev_workflows_developer_hub_gitlab_host }}
+type: Opaque
+stringData:
+  id: {{ _rhpds_build_secured_dev_workflows_developer_hub_devspaces_client_id }}
+  secret: {{ _rhpds_build_secured_dev_workflows_developer_hub_devspaces_client_secret }}
