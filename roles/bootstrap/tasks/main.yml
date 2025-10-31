@@ -11,3 +11,16 @@
       state: directory
       mode: '0755'
   delegate_to: bastion
+
+- name: Create tssc namespaces
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: "{{ item }}"
+  loop:
+  - tssc-app-ci
+  - tssc-app-development
+  - tssc-app-prod
