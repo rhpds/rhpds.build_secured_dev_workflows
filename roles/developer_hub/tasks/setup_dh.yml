@@ -41,9 +41,8 @@
     api_version: v1
     kind: Secret
     namespace: "{{ rhpds_build_secured_dev_workflows_developer_hub_namespace }}"
-    name: rhdh-kubernetes-plugin
+    name: rhdh-kubernetes-plugin-token
   register: r_k8s_plugin_sa_secret
-  ignore_errors: true
   until:
   - r_k8s_plugin_sa_secret is defined
   - r_k8s_plugin_sa_secret.resources is defined
