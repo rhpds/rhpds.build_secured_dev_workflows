@@ -16,18 +16,6 @@
   - r_quay_database_pod.resources[0].status.phase is defined
   - r_quay_database_pod.resources[0].status.phase == "Running"
 
-# - name: Extend Quay token expiration (using shell)
-#   ansible.builtin.shell: |
-#     oc exec {{ r_quay_database_pod.resources[0].metadata.name }} -n {{
-#     rhpds_build_secured_dev_workflows_developer_hub_quay_namespace }} -- psql -d \
-#     quay-quay-database -c \
-#     "update public.oauthaccesstoken set expires_at = '2300-12-31 00:00:00' where id = 1;"
-#   register: _r_ext__quay_token_exp
-#   until: _r_ext__quay_token_exp.rc == 0
-#   retries: 5
-#   delay: 30
-#   delegate_to: bastion
-
 - name: Extend Quay token expiration (using k8s_exec)
   kubernetes.core.k8s_exec:
     namespace: "{{ rhpds_build_secured_dev_workflows_developer_hub_quay_namespace }}"
