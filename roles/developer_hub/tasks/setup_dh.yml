@@ -67,7 +67,7 @@
     rhads_dh_keycloak_base_url: "https://{{ rhads_secured_dev_workflows_developer_hub_keycloak_host }}"
     rhads_dh_keycloak_client_id: "{{ rhpds_build_secured_dev_workflows_developer_hub_keycloak_client_id }}"
     rhads_dh_keycloak_client_secret: "{{ rhpds_build_secured_dev_workflows_developer_hub_keycloak_client_secret }}"
-    rhads_dh_developer_hub_catalog_url: "{{ rhpds_build_secured_dev_workflows_developer_hub_catalog_url }}"
+    rhads_dh_developer_hub_catalog_url: "{{ _rhads_dh_developer_hub_catalog_url }}"
     rhads_dh_gitlab_host: https://{{ rhads_secured_dev_workflows_developer_hub_gitlab_host }}
     rhads_dh_gitlab_token: "{{ _rhpds_build_secured_dev_workflows_developer_hub_gitlab_root_token }}"
     rhads_dh_quay_url: "https://{{ rhads_secured_dev_workflows_developer_hub_quay_host }}"
