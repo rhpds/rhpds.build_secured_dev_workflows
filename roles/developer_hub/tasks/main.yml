@@ -21,7 +21,7 @@
 
 - name: Setup ACS
   ansible.builtin.include_tasks:
-    file: ./setup_acs.yml
+    file: ./setup_rhacs.yml
 
 - name: Setup Gitlab
   ansible.builtin.include_tasks:

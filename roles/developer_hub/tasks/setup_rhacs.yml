@@ -4,27 +4,27 @@
     api_version: route.openshift.io/v1
     kind: Route
     name: central
-    namespace: "{{ rhpds_build_secured_dev_workflows_developer_hub_acs_namespace }}"
+    namespace: "{{ rhpds_build_secured_dev_workflows_developer_hub_rhacs_namespace }}"
   register: r_central_route
 
 - name: Set ACS Central hostname
   ansible.builtin.set_fact:
-    _rhpds_build_secured_dev_workflows_developer_hub_acs_central_host: "{{ r_central_route.resources[0].spec.host }}"
+    _rhpds_build_secured_dev_workflows_developer_hub_rhacs_central_host: "{{ r_central_route.resources[0].spec.host }}"
 
 - name: Get ACS admin password
   kubernetes.core.k8s_info:
     api_version: v1
     kind: Secret
     name: central-htpasswd
-    namespace: "{{ rhpds_build_secured_dev_workflows_developer_hub_acs_namespace }}"
-  register: r_acs_admin_secret
+    namespace: "{{ rhpds_build_secured_dev_workflows_developer_hub_rhacs_namespace }}"
+  register: r_rhacs_admin_secret
 
 - name: Generate ACS API token
   ansible.builtin.uri:
-    url: "https://{{ _rhpds_build_secured_dev_workflows_developer_hub_acs_central_host }}/v1/apitokens/generate"
+    url: "https://{{ _rhpds_build_secured_dev_workflows_developer_hub_rhacs_central_host }}/v1/apitokens/generate"
     method: POST
-    user: "{{ rhpds_build_secured_dev_workflows_developer_hub_acs_admin_user }}"
-    password: "{{ _rhpds_build_secured_dev_workflows_developer_hub_acs_admin_password }}"
+    user: "{{ rhpds_build_secured_dev_workflows_developer_hub_rhacs_admin_user }}"
+    password: "{{ _rhpds_build_secured_dev_workflows_developer_hub_rhacs_admin_password }}"
     force_basic_auth: true
     validate_certs: false
     body_format: json
@@ -33,11 +33,11 @@
       roles:
       - Admin
     status_code: 200
-  register: r_acs_token_response
+  register: r_rhacs_token_response
 
 - name: Set ACS API token
   ansible.builtin.set_fact:
-    _rhpds_build_secured_dev_workflows_developer_hub_acs_api_token: "{{ r_acs_token_response.json.token }}"
+    _rhpds_build_secured_dev_workflows_developer_hub_rhacs_api_token: "{{ r_rhacs_token_response.json.token }}"
 
 - name: Create ACS API token secret
   kubernetes.core.k8s:
