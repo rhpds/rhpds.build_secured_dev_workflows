@@ -52,7 +52,7 @@
     body:
       client_id: admin-cli
       username: "{{ _rhpds_build_secured_dev_workflows_developer_hub_keycloak_admin_username }}"
-      password: "{{ _keycloak_admin_password }}"
+      password: "{{ _rhpds_build_secured_dev_workflows_developer_hub_keycloak_admin_password }}"
       grant_type: password
   register: r_keycloak_access_token
 
