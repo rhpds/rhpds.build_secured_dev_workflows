@@ -38,9 +38,10 @@
 
 - name: Get the secret associated with the kubernetes plugin service account
   kubernetes.core.k8s_info:
+    api_version: v1
     kind: Secret
     namespace: "{{ rhpds_build_secured_dev_workflows_developer_hub_namespace }}"
-    label_selector: kubernetes.io/service-account.name=rhdh-kubernetes-plugin
+    name: rhdh-kubernetes-plugin
   register: r_k8s_plugin_sa_secret
   ignore_errors: true
   until:
