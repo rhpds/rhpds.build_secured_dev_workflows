@@ -8,7 +8,7 @@
     headers:
       Authorization: Bearer {{ _keycloak_access_token }}
     body:
-      clientId: "{{ ocp4_workload_advanced_developer_suite_dh_keycloak_client_id }}"
+      clientId: "{{ rhpds_build_secured_dev_workflows_developer_hub_keycloak_client_id }}"
       enabled: true
       redirectUris:
       - https://{{ _rhpds_build_secured_dev_workflows_developer_hub_host }}/api/auth/oidc/handler/frame
