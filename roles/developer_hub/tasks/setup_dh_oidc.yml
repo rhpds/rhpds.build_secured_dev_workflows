@@ -1,7 +1,8 @@
 ---
 - name: Create Developer Hub client
   uri:
-    url: https://{{ _rhpds_build_secured_dev_workflows_developer_hub_keycloak_host }}/admin/realms/trusted-artifact-signer/clients
+    url: https://{{ _rhpds_build_secured_dev_workflows_developer_hub_keycloak_host }}/admin/realms/{{
+      rhpds_build_secured_dev_workflows_developer_hub_authentication_realm }}/clients
     method: POST
     validate_certs: false
     body_format: json
@@ -20,7 +21,8 @@
 
 - name: Get Developer Hub client
   uri:
-    url: https://{{ _rhpds_build_secured_dev_workflows_developer_hub_keycloak_host }}/admin/realms/trusted-artifact-signer/clients?clientId={{
+    url: https://{{ _rhpds_build_secured_dev_workflows_developer_hub_keycloak_host }}/admin/realms/{{
+      rhpds_build_secured_dev_workflows_developer_hub_authentication_realm }}/clients?clientId={{
       rhpds_build_secured_dev_workflows_developer_hub_keycloak_client_id }}
     method: GET
     validate_certs: false
@@ -30,7 +32,8 @@
 
 - name: Get Service Account ID
   uri:
-    url: https://{{ _rhpds_build_secured_dev_workflows_developer_hub_keycloak_host }}/admin/realms/trusted-artifact-signer/clients/{{
+    url: https://{{ _rhpds_build_secured_dev_workflows_developer_hub_keycloak_host }}/admin/realms/{{
+      rhpds_build_secured_dev_workflows_developer_hub_authentication_realm }}/clients/{{
       r_keycloak_dh_client.json[0].id }}/service-account-user
     method: GET
     validate_certs: false
@@ -40,7 +43,8 @@
 
 - name: Get Realm Management client
   uri:
-    url: https://{{ _rhpds_build_secured_dev_workflows_developer_hub_keycloak_host }}/admin/realms/trusted-artifact-signer/clients?clientId=realm-management
+    url: https://{{ _rhpds_build_secured_dev_workflows_developer_hub_keycloak_host }}/admin/realms/{{
+      rhpds_build_secured_dev_workflows_developer_hub_authentication_realm }}/clients?clientId=realm-management
     method: GET
     validate_certs: false
     headers:
