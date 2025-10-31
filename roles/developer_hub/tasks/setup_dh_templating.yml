@@ -1,37 +1,42 @@
 ---
-- name: Clone repository
-  ansible.builtin.git:
-    accept_hostkey: true
-    force: true
-    repo: https://root:{{ _rhpds_build_secured_dev_workflows_developer_hub_gitlab_root_token }}@{{
-      _rhpds_build_secured_dev_workflows_developer_hub_gitlab_host }}/{{ location.group }}/{{
-      location.repository }}
-    dest: "~/{{ location.repository }}"
-    version: "{{ location.revision }}"
-  environment:
-    GIT_SSL_NO_VERIFY: "true"
+- block:
+  - name: Clone repository
+    ansible.builtin.git:
+      accept_hostkey: true
+      force: true
+      repo: https://root:{{ _rhpds_build_secured_dev_workflows_developer_hub_gitlab_root_token }}@{{
+        _rhpds_build_secured_dev_workflows_developer_hub_gitlab_host }}/{{ location.group }}/{{
+        location.repository }}
+      dest: "~/{{ location.repository }}"
+      version: "{{ location.revision }}"
+    environment:
+      GIT_SSL_NO_VERIFY: "true"
 
-- name: Fetch template file
-  run_once: true
-  ansible.builtin.copy:
-    src: "~/{{ location.repository }}/{{ file }}"
-    dest: /tmp/{{ file }}
-  loop: "{{ location.file }}"
-  loop_control:
-    loop_var: file
+  - name: Fetch template file
+    run_once: true
+    ansible.builtin.fetch:
+      src: "~/{{ location.repository }}/{{ file }}"
+      dest: /tmp/{{ file }}
+      flat: true
+      fail_on_missing: true
+    loop: "{{ location.file }}"
+    loop_control:
+      loop_var: file
 
-- name: Apply template file
-  ansible.builtin.template:
-    src: /tmp/{{ file }}
-    dest: "~/{{ location.repository }}/{{ file }}"
-    mode: "0660"
-    owner: "{{ ansible_user }}"
-  loop: "{{ location.file }}"
-  loop_control:
-    loop_var: file
+  - name: Apply template file
+    ansible.builtin.template:
+      src: /tmp/{{ file }}
+      dest: "~/{{ location.repository }}/{{ file }}"
+      mode: "0660"
+      owner: "{{ ansible_user }}"
+    loop: "{{ location.file }}"
+    loop_control:
+      loop_var: file
 
-- name: Push changes to repository
-  ansible.builtin.shell: |
-    git add . && git commit -m "Templating process completed..." && git push
-  args:
-    chdir: ~/{{ location.repository }}
+  - name: Push changes to repository
+    ansible.builtin.shell: |
+      git add . && git commit -m "Templating process completed..." && git push
+    args:
+      chdir: ~/{{ location.repository }}
+
+  delegate_to: bastion
