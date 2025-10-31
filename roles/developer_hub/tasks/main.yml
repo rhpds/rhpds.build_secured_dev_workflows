@@ -19,6 +19,10 @@
       rhpds_build_secured_dev_workflows_developer_hub_tpa_namespace }}.{{
       openshift_cluster_ingress_domain }}
 
+- name: Setup ACS
+  ansible.builtin.include_tasks:
+    file: ./setup_acs.yml
+
 - name: Setup Gitlab
   ansible.builtin.include_tasks:
     file: ./setup_gitlab.yml
