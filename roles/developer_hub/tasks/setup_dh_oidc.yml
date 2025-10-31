@@ -1,0 +1,61 @@
+---
+- name: Create Developer Hub client
+  uri:
+    url: https://{{ _rhpds_build_secured_dev_workflows_developer_hub_keycloak_host }}/admin/realms/trusted-artifact-signer/clients
+    method: POST
+    validate_certs: false
+    body_format: json
+    headers:
+      Authorization: Bearer {{ _keycloak_access_token }}
+    body:
+      clientId: "{{ ocp4_workload_advanced_developer_suite_dh_keycloak_client_id }}"
+      enabled: true
+      redirectUris:
+      - https://{{ _rhpds_build_secured_dev_workflows_developer_hub_host }}/api/auth/oidc/handler/frame
+      protocol: openid-connect
+      publicClient: false
+      secret: "{{ rhpds_build_secured_dev_workflows_developer_hub_keycloak_client_secret }}"
+      serviceAccountsEnabled: true
+    status_code: 201
+
+- name: Get Developer Hub client
+  uri:
+    url: https://{{ _rhpds_build_secured_dev_workflows_developer_hub_keycloak_host }}/admin/realms/trusted-artifact-signer/clients?clientId={{
+      rhpds_build_secured_dev_workflows_developer_hub_keycloak_client_id }}
+    method: GET
+    validate_certs: false
+    headers:
+      Authorization: Bearer {{ _rhpds_build_secured_dev_workflows_developer_hub_keycloak_access_token }}
+  register: r_keycloak_dh_client
+
+- name: Get Service Account ID
+  uri:
+    url: https://{{ _rhpds_build_secured_dev_workflows_developer_hub_keycloak_host }}/admin/realms/trusted-artifact-signer/clients/{{
+      r_keycloak_dh_client.json[0].id }}/service-account-user
+    method: GET
+    validate_certs: false
+    headers:
+      Authorization: Bearer {{ _rhpds_build_secured_dev_workflows_developer_hub_keycloak_access_token }}
+  register: r_keycloak_dh_sa
+
+- name: Get Realm Management client
+  uri:
+    url: https://{{ _rhpds_build_secured_dev_workflows_developer_hub_keycloak_host }}/admin/realms/trusted-artifact-signer/clients?clientId=realm-management
+    method: GET
+    validate_certs: false
+    headers:
+      Authorization: Bearer {{ _rhpds_build_secured_dev_workflows_developer_hub_keycloak_access_token }}
+  register: r_keycloak_rm_client
+
+- name: Configure keycloak
+  ansible.builtin.include_tasks:
+    file: ./setup_dh_client_realm_management_roles.yml
+  vars:
+    _rhpds_build_secured_dev_workflows_developer_hub_dh_rm_client_id: "{{ r_keycloak_rm_client.json[0].id }}"
+    _rhpds_build_secured_dev_workflows_developer_hub_dh_sa_id: "{{ r_keycloak_dh_sa.json.id }}"
+  loop:
+  - view-users
+  - query-groups
+  - query-users
+  loop_control:
+    loop_var: _role

@@ -2,3 +2,36 @@
 rhpds_build_secured_dev_workflows_developer_hub_quay_namespace: quay-enterprise
 rhpds_build_secured_dev_workflows_developer_hub_gitlab_namespace: gitlab
 rhpds_build_secured_dev_workflows_developer_hub_namespace: backstage
+rhpds_build_secured_dev_workflows_developer_hub_argocd_namespace: janus-argocd
+rhpds_build_secured_dev_workflows_developer_hub_keycloak_namespace: tssc-keycloak
+
+rhpds_build_secured_dev_workflows_developer_hub_keycloak_client_id: developer-hub
+rhpds_build_secured_dev_workflows_developer_hub_keycloak_client_secret: ""
+rhpds_build_secured_dev_workflows_developer_hub_authentication_realm: sso
+
+rhpds_build_secured_dev_workflows_developer_hub_quay_registry: quay.io
+rhpds_build_secured_dev_workflows_developer_hub_quay_image: rhdh/rhdh-hub-rhel9
+rhpds_build_secured_dev_workflows_developer_hub_quay_image_tag: "1.7"
+
+rhpds_build_secured_dev_workflows_developer_hub_catalog_locations:
+- repository: build_secured_dev_workflows_idp_configuration
+  revision: main
+  group: rhdh
+  file:
+  - all-locations.yaml
+
+rhpds_build_secured_dev_workflows_developer_hub_templating_files:
+- repository: build_secured_dev_workflows_idp_configuration
+  revision: main
+  group: rhdh
+  file:
+  - charts/backstage/backstage-values.yaml
+- repository: build_secured_dev_workflows_idp_gitops
+  revision: main
+  group: rhdh
+  file:
+  - all-locations.yaml
+
+rhpds_build_secured_dev_workflows_developer_hub_helm_chart_repo: https://charts.openshift.io
+rhpds_build_secured_dev_workflows_developer_hub_helm_chart: redhat-developer-hub
+rhpds_build_secured_dev_workflows_developer_hub_helm_chart_version: 1.7.1

@@ -1,0 +1,80 @@
+---
+- name: Setup Developer Hub OIDC
+  ansible.builtin.include_tasks:
+    file: ./setup_dh_oidc.yml
+
+- name: Make default service account admin
+  kubernetes.core.k8s:
+    state: present
+    template: "{{ item }}"
+  loop:
+  - service-account-rhdh-kubernetes-plugin.yml.j2
+  - secret-rhdh-kubernetes-plugin-sa-token.yml.j2
+  - openshift-crb-backstage-rhdh-kubernetes-plugin-admin.yml.j2
+
+- name: Get the secret associated with the kubernetes plugin service account
+  community.kubernetes.k8s_info:
+    kind: Secret
+    namespace: "{{ rhpds_build_secured_dev_workflows_developer_hub_namespace }}"
+    label_selector: kubernetes.io/service-account.name=rhdh-kubernetes-plugin
+  register: result
+  ignore_errors: true
+  until:
+  - result is defined
+  - result.resources is defined
+  - result.resources | length > 0
+  - result.resources[0] is defined
+  - result.resources[0].data is defined
+  - result.resources[0].data.token is defined
+  - result.resources[0].data.token | length > 0
+
+- name: Initialize Developer Hub catalog URL list
+  ansible.builtin.set_fact:
+    _rhads_dh_developer_hub_catalog_url: []
+
+- name: Setup Developer Hub Locations
+  ansible.builtin.set_fact:
+    _rhads_dh_developer_hub_catalog_url: "{{ _rhads_dh_developer_hub_catalog_url + [item] }}"
+  vars:
+    target: https://{{ rhpds_build_secured_dev_workflows_developer_hub_gitlab_host }}/{{ location.group }}/{{ location.repository }}/blob/{{ location.branch }}/{{ location.file }}"
+  loop: "{{ rhpds_build_secured_dev_workflows_developer_hub_catalog_locations }}"
+  loop_control:
+    loop_var: location
+
+- name: Setup Developer Hub Templating
+  ansible.builtin.include_tasks:
+    file: ./setup_dh_templating.yml
+  loop: "{{ rhpds_build_secured_dev_workflows_developer_hub_templating_files }}"
+  loop_control:
+    loop_var: location
+
+- name: Set Developer Hub environment variables
+  set_fact:
+    rhads_dh_quay_backstage_registry: "{{ rhads_secured_dev_workflows_developer_hub_quay_registry }}"
+    rhads_dh_quay_backstage_image: "{{ rhads_secured_dev_workflows_developer_hub_quay_image }}"
+    rhads_dh_quay_backstage_image_tag: "{{ rhads_secured_dev_workflows_developer_hub_quay_image_tag }}"
+    rhads_dh_backstage_host: "{{ rhads_secured_dev_workflows_developer_hub_backstage_host }}"
+    rhads_dh_backstage_url: "https://{{ rhads_secured_dev_workflows_developer_hub_backstage_host }}"
+    rhads_dh_argocd_user: "{{ rhads_secured_dev_workflows_developer_hub_argocd_user | default('admin') }}"
+    rhads_dh_argocd_password: "{{ rhads_secured_dev_workflows_developer_hub_argocd_password | default('') }}"
+    rhads_dh_argocd_url: "https://{{ rhads_secured_dev_workflows_developer_hub_argocd_host }}"
+    rhads_dh_auth_oidc_client_secret: "{{ rhpds_build_secured_dev_workflows_developer_hub_keycloak_client_secret }}"
+    rhads_dh_auth_oidc_client_id: "{{ ocp4_workload_advanced_developer_suite_dh_keycloak_client_id }}"
+    rhads_dh_auth_oidc_metadata_url: "https://{{ rhads_secured_dev_workflows_developer_hub_keycloak_host }}/realms/{{
+      rhpds_build_secured_dev_workflows_developer_hub_authentication_realm }}/.well-known/openid-configuration"
+    rhads_dh_keycloak_login_realm: "{{ rhpds_build_secured_dev_workflows_developer_hub_authentication_realm }}"
+    rhads_dh_keycloak_realm: "{{ rhpds_build_secured_dev_workflows_developer_hub_authentication_realm }}"
+    rhads_dh_keycloak_base_url: "https://{{ rhads_secured_dev_workflows_developer_hub_keycloak_host }}"
+    rhads_dh_keycloak_client_id: "{{ rhpds_build_secured_dev_workflows_developer_hub_keycloak_client_id }}"
+    rhads_dh_keycloak_client_secret: "{{ rhpds_build_secured_dev_workflows_developer_hub_keycloak_client_secret }}"
+    rhads_dh_developer_hub_catalog_url: "{{ rhpds_build_secured_dev_workflows_developer_hub_catalog_url }}"
+    rhads_dh_gitlab_host: https://{{ rhads_secured_dev_workflows_developer_hub_gitlab_host }}
+    rhads_dh_gitlab_token: "{{ _rhpds_build_secured_dev_workflows_developer_hub_gitlab_root_token }}"
+    rhads_dh_quay_url: "https://{{ rhads_secured_dev_workflows_developer_hub_quay_host }}"
+    rhads_dh_quay_api_token: "{{ _rhpds_build_secured_dev_workflows_developer_hub_quay_token }}"
+    rhads_dh_k8s_serviceaccount_token: "{{ result.resources[0].data.token | b64decode }}"
+
+- name: Create Developer Hub App of Apps application
+  kubernetes.core.k8s:
+    state: present
+    template: application-backstage-app-of-apps.yml.j2
