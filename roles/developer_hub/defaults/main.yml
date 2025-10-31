@@ -27,7 +27,7 @@ rhpds_build_secured_dev_workflows_developer_hub_templating_files:
   revision: main
   group: rhdh
   file:
-  - all-locations.yaml
+  - component-rhpds.yaml
 - repository: build_secured_dev_workflows_idp_gitops
   revision: main
   group: rhdh
