@@ -1,1 +1,7 @@
 ---
+- name: Set Developer Hub environment variables
+  set_fact:
+    rhads_dh_backstage_url: "https://{{ rhads_secured_dev_workflows_developer_hub_backstage_host }}"
+    rhads_dh_argocd_user: "{{ rhads_secured_dev_workflows_developer_hub_argocd_user | default('admin') }}"
+    rhads_dh_argocd_password: "{{ rhads_secured_dev_workflows_developer_hub_argocd_password | default('') }}"
+    rhads_dh_argocd_url: "https://{{ rhads_secured_dev_workflows_developer_hub_argocd_host }}"
