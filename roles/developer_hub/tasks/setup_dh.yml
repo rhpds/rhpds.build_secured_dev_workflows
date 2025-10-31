@@ -52,6 +52,10 @@
   - r_k8s_plugin_sa_secret.resources[0].data.token is defined
   - r_k8s_plugin_sa_secret.resources[0].data.token | length > 0
 
+- name: Set postgresql password
+  ansible.builtin.set_fact:
+    _rhpds_build_secured_dev_workflows_developer_hub_postgresql_password: "{{ lookup('password', '/dev/null chars=ascii_letters,digits '~ 'length=' ~ 10) }}"
+
 - name: Setup Developer Hub Templating
   ansible.builtin.include_tasks:
     file: ./setup_dh_templating.yml
@@ -65,6 +69,7 @@
     rhads_dh_quay_backstage_image_tag: "{{ rhpds_build_secured_dev_workflows_developer_hub_quay_image_tag }}"
     rhads_dh_backstage_host: "{{ _rhpds_build_secured_dev_workflows_developer_hub_host }}"
     rhads_dh_backstage_url: "https://{{ _rhpds_build_secured_dev_workflows_developer_hub_host }}"
+    rhads_dh_postgresql_password: "{{ _rhpds_build_secured_dev_workflows_developer_hub_postgresql_password }}"
     rhads_dh_argocd_user: "{{ rhpds_build_secured_dev_workflows_developer_hub_argocd_user | default('admin') }}"
     rhads_dh_argocd_password: "{{ rhpds_build_secured_dev_workflows_developer_hub_argocd_password | default('') }}"
     rhads_dh_argocd_url: "https://{{ _rhpds_build_secured_dev_workflows_developer_hub_argocd_host }}"
