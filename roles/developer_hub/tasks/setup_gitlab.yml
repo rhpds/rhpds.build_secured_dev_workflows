@@ -23,17 +23,17 @@
 
 - name: List Gitlab users
   ansible.builtin.uri:
-    url: "https://{{ rhpds_build_secured_dev_workflows_developer_hub_gitlab_host }}/api/v4/users?per_page=100"
+    url: "https://{{ _rhpds_build_secured_dev_workflows_developer_hub_gitlab_host }}/api/v4/users?per_page=100"
     method: GET
     headers:
-      PRIVATE-TOKEN: "{{ _rhads_build_secured_dev_workflows_developer_hub_gitlab_root_token }}"
+      PRIVATE-TOKEN: "{{ _rhpds_build_secured_dev_workflows_developer_hub_gitlab_root_token }}"
     validate_certs: false
     status_code: 200
   register: r_users
 
 - name: Create development group
   ansible.builtin.uri:
-    url: "https://{{ rhpds_build_secured_dev_workflows_developer_hub_gitlab_host }}/api/v4/groups"
+    url: "https://{{ _rhpds_build_secured_dev_workflows_developer_hub_gitlab_host }}/api/v4/groups"
     method: POST
     body_format: form-urlencoded
     body:
@@ -52,7 +52,7 @@
 - name: Add users to development group
   when: item.username.startswith('{{ rhpds_build_secured_dev_workflows_developer_hub_gitlab_user_base_name }}')
   ansible.builtin.uri:
-    url: "https://{{ rhpds_build_secured_dev_workflows_developer_hub_gitlab_host }}/api/v4/groups/{{ r_group.json.id }}/members"
+    url: "https://{{ _rhpds_build_secured_dev_workflows_developer_hub_gitlab_host }}/api/v4/groups/{{ r_group.json.id }}/members"
     method: POST
     body_format: form-urlencoded
     body:
