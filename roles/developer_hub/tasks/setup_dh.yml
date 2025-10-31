@@ -5,11 +5,11 @@
 
 - name: Initialize Developer Hub catalog URL list
   ansible.builtin.set_fact:
-    _rhads_dh_developer_hub_catalog_url: []
+    _rhpds_build_secured_dev_workflows_developer_hub_catalog_url: []
 
 - name: Setup Developer Hub Locations
   ansible.builtin.set_fact:
-    _rhads_dh_developer_hub_catalog_url: "{{ _rhads_dh_developer_hub_catalog_url + [location] }}"
+    _rhpds_build_secured_dev_workflows_developer_hub_catalog_url: "{{ _rhpds_build_secured_dev_workflows_developer_hub_catalog_url + [location] }}"
   vars:
     target: https://{{ _rhpds_build_secured_dev_workflows_developer_hub_gitlab_host }}/{{ location.group }}/{{ location.repository }}/blob/{{ location.revision }}/{{ location.file }}"
   loop: "{{ rhpds_build_secured_dev_workflows_developer_hub_catalog_locations }}"
@@ -24,27 +24,27 @@
     loop_var: location
   vars:
     rhads_dh_ingress_domain: "{{ openshift_cluster_ingress_domain }}"
-    rhads_dh_quay_backstage_registry: "{{ rhads_secured_dev_workflows_developer_hub_quay_registry }}"
-    rhads_dh_quay_backstage_image: "{{ rhads_secured_dev_workflows_developer_hub_quay_image }}"
-    rhads_dh_quay_backstage_image_tag: "{{ rhads_secured_dev_workflows_developer_hub_quay_image_tag }}"
-    rhads_dh_backstage_host: "{{ rhads_secured_dev_workflows_developer_hub_backstage_host }}"
-    rhads_dh_backstage_url: "https://{{ rhads_secured_dev_workflows_developer_hub_backstage_host }}"
-    rhads_dh_argocd_user: "{{ rhads_secured_dev_workflows_developer_hub_argocd_user | default('admin') }}"
-    rhads_dh_argocd_password: "{{ rhads_secured_dev_workflows_developer_hub_argocd_password | default('') }}"
-    rhads_dh_argocd_url: "https://{{ rhads_secured_dev_workflows_developer_hub_argocd_host }}"
+    rhads_dh_quay_backstage_registry: "{{ rhpds_build_secured_dev_workflows_developer_hub_quay_registry }}"
+    rhads_dh_quay_backstage_image: "{{ rhpds_build_secured_dev_workflows_developer_hub_quay_image }}"
+    rhads_dh_quay_backstage_image_tag: "{{ rhpds_build_secured_dev_workflows_developer_hub_quay_image_tag }}"
+    rhads_dh_backstage_host: "{{ _rhpds_build_secured_dev_workflows_developer_hub_host }}"
+    rhads_dh_backstage_url: "https://{{ _rhpds_build_secured_dev_workflows_developer_hub_host }}"
+    rhads_dh_argocd_user: "{{ rhpds_build_secured_dev_workflows_developer_hub_argocd_user | default('admin') }}"
+    rhads_dh_argocd_password: "{{ rhpds_build_secured_dev_workflows_developer_hub_argocd_password | default('') }}"
+    rhads_dh_argocd_url: "https://{{ _rhpds_build_secured_dev_workflows_developer_hub_argocd_host }}"
     rhads_dh_auth_oidc_client_secret: "{{ rhpds_build_secured_dev_workflows_developer_hub_keycloak_client_secret }}"
-    rhads_dh_auth_oidc_client_id: "{{ ocp4_workload_advanced_developer_suite_dh_keycloak_client_id }}"
-    rhads_dh_auth_oidc_metadata_url: "https://{{ rhads_secured_dev_workflows_developer_hub_keycloak_host }}/realms/{{
+    rhads_dh_auth_oidc_client_id: "{{ rhpds_build_secured_dev_workflows_developer_hub_keycloak_client_id }}"
+    rhads_dh_auth_oidc_metadata_url: "https://{{ _rhpds_build_secured_dev_workflows_developer_hub_keycloak_host }}/realms/{{
       rhpds_build_secured_dev_workflows_developer_hub_authentication_realm }}/.well-known/openid-configuration"
     rhads_dh_keycloak_login_realm: "{{ rhpds_build_secured_dev_workflows_developer_hub_authentication_realm }}"
     rhads_dh_keycloak_realm: "{{ rhpds_build_secured_dev_workflows_developer_hub_authentication_realm }}"
-    rhads_dh_keycloak_base_url: "https://{{ rhads_secured_dev_workflows_developer_hub_keycloak_host }}"
+    rhads_dh_keycloak_base_url: "https://{{ _rhpds_build_secured_dev_workflows_developer_hub_keycloak_host }}"
     rhads_dh_keycloak_client_id: "{{ rhpds_build_secured_dev_workflows_developer_hub_keycloak_client_id }}"
     rhads_dh_keycloak_client_secret: "{{ rhpds_build_secured_dev_workflows_developer_hub_keycloak_client_secret }}"
-    rhads_dh_developer_hub_catalog_url: "{{ _rhads_dh_developer_hub_catalog_url }}"
-    rhads_dh_gitlab_host: https://{{ rhads_secured_dev_workflows_developer_hub_gitlab_host }}
+    rhads_dh_developer_hub_catalog_url: "{{ _rhpds_build_secured_dev_workflows_developer_hub_catalog_url }}"
+    rhads_dh_gitlab_host: https://{{ _rhpds_build_secured_dev_workflows_developer_hub_gitlab_host }}
     rhads_dh_gitlab_token: "{{ _rhpds_build_secured_dev_workflows_developer_hub_gitlab_root_token }}"
-    rhads_dh_quay_url: "https://{{ rhads_secured_dev_workflows_developer_hub_quay_host }}"
+    rhads_dh_quay_url: "https://{{ _rhpds_build_secured_dev_workflows_developer_hub_quay_host }}"
     rhads_dh_quay_api_token: "{{ _rhpds_build_secured_dev_workflows_developer_hub_quay_token }}"
     rhads_dh_k8s_serviceaccount_token: "{{ r_k8s_plugin_sa_secret.resources[0].data.token | b64decode }}"
 
