@@ -1,2 +1,4 @@
 ---
 rhpds_build_secured_dev_workflows_developer_hub_quay_namespace: quay-enterprise
+rhpds_build_secured_dev_workflows_developer_hub_gitlab_namespace: gitlab
+rhpds_build_secured_dev_workflows_developer_hub_namespace: backstage

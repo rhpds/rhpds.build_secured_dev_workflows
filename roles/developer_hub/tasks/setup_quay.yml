@@ -42,7 +42,7 @@
 - name: Set Quay details
   set_fact:
     _rhpds_build_secured_dev_workflows_developer_hub_quay_token: "{{ lookup('agnosticd_user_data', 'quay_admin_token') }}"
-    _rhpds_build_secured_dev_workflows_developer_hub_quay_url: https://quay-{{ guid }}.{{ openshift_cluster_ingress_domain }}
+    _rhpds_build_secured_dev_workflows_developer_hub_quay_url: https://{{ _rhpds_build_secured_dev_workflows_developer_hub_quay_host }}
 
 - name: Create Quay organization tssc
   uri:
@@ -128,7 +128,7 @@
       {{
         {
           "auths": {
-            "quay-" + rhpds_build_secured_dev_workflows_developer_hub_quay_namespace + "." + openshift_cluster_ingress_domain: {
+            _rhpds_build_secured_dev_workflows_developer_hub_quay_host: {
               "auth": _rhpds_build_secured_dev_workflows_developer_hub_quay_rw_token_b64,
               "email": "admin@" + openshift_cluster_ingress_domain,
               "password": _rhpds_build_secured_dev_workflows_developer_hub_quay_rw_token,
@@ -141,7 +141,7 @@
       {{
         {
           "auths": {
-              "quay-" + rhpds_build_secured_dev_workflows_developer_hub_quay_namespace + "." + openshift_cluster_ingress_domain: {
+            _rhpds_build_secured_dev_workflows_developer_hub_quay_host: {
               "auth": _rhpds_build_secured_dev_workflows_developer_hub_quay_ro_token_b64,
               "email": "admin@" + openshift_cluster_ingress_domain,
               "password": _rhpds_build_secured_dev_workflows_developer_hub_quay_ro_token,

@@ -1,4 +1,17 @@
 ---
+- name: Get OpenShift Apps Domain
+  ansible.builtin.set_fact:
+    rhpds_build_secured_dev_workflows_developer_hub_gitlab_host: "gitlab-{{
+      rhpds_build_secured_dev_workflows_developer_hub_gitlab_namespace }}.{{
+      openshift_cluster_ingress_domain }}"
+    rhpds_build_secured_dev_workflows_developer_hub_host: "backstage-{{
+      rhpds_build_secured_dev_workflows_developer_hub_namespace }}.{{
+      openshift_cluster_ingress_domain }}"
+    rhpds_build_secured_dev_workflows_developer_hub_devspaces_host: "devspaces.{{
+      openshift_cluster_ingress_domain }}"
+    rhpds_build_secured_dev_workflows_developer_hub_quay_host: quay-{{ guid }}.{{
+      openshift_cluster_ingress_domain }}
+
 - name: Setup Quay
   ansible.builtin.include_tasks:
     file: ./setup_quay.yml
