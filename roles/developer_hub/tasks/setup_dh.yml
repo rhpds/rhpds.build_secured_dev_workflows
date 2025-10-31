@@ -16,6 +16,42 @@
   loop_control:
     loop_var: location
 
+- name: Create namespace and give Argo CD ownership
+  kubernetes.core.k8s:
+    api_version: v1
+    kind: Namespace
+    name: "{{ rhpds_build_secured_dev_workflows_developer_hub_namespace }}"
+    state: present
+    definition:
+      metadata:
+        labels:
+          argocd.argoproj.io/managed-by: argocd
+
+- name: Make default service account admin
+  kubernetes.core.k8s:
+    state: present
+    template: "{{ item }}"
+  loop:
+  - service-account-rhdh-kubernetes-plugin.yml.j2
+  - secret-rhdh-kubernetes-plugin-sa-token.yml.j2
+  - openshift-crb-backstage-rhdh-kubernetes-plugin-admin.yml.j2
+
+- name: Get the secret associated with the kubernetes plugin service account
+  kubernetes.core.k8s_info:
+    kind: Secret
+    namespace: "{{ rhpds_build_secured_dev_workflows_developer_hub_namespace }}"
+    label_selector: kubernetes.io/service-account.name=rhdh-kubernetes-plugin
+  register: r_k8s_plugin_sa_secret
+  ignore_errors: true
+  until:
+  - r_k8s_plugin_sa_secret is defined
+  - r_k8s_plugin_sa_secret.resources is defined
+  - r_k8s_plugin_sa_secret.resources | length > 0
+  - r_k8s_plugin_sa_secret.resources[0] is defined
+  - r_k8s_plugin_sa_secret.resources[0].data is defined
+  - r_k8s_plugin_sa_secret.resources[0].data.token is defined
+  - r_k8s_plugin_sa_secret.resources[0].data.token | length > 0
+
 - name: Setup Developer Hub Templating
   ansible.builtin.include_tasks:
     file: ./setup_dh_templating.yml
@@ -52,38 +88,3 @@
   kubernetes.core.k8s:
     state: present
     template: application-backstage-app-of-apps.yml.j2
-
-- name: Wait for namespace to exist
-  kubernetes.core.k8s_info:
-    api_version: v1
-    kind: Namespace
-    name: "{{ rhpds_build_secured_dev_workflows_developer_hub_namespace }}"
-  register: r_namespace_info
-  until: r_namespace_info.resources | length > 0
-  retries: 30
-  delay: 10
-
-- name: Make default service account admin
-  kubernetes.core.k8s:
-    state: present
-    template: "{{ item }}"
-  loop:
-  - service-account-rhdh-kubernetes-plugin.yml.j2
-  - secret-rhdh-kubernetes-plugin-sa-token.yml.j2
-  - openshift-crb-backstage-rhdh-kubernetes-plugin-admin.yml.j2
-
-- name: Get the secret associated with the kubernetes plugin service account
-  kubernetes.core.k8s_info:
-    kind: Secret
-    namespace: "{{ rhpds_build_secured_dev_workflows_developer_hub_namespace }}"
-    label_selector: kubernetes.io/service-account.name=rhdh-kubernetes-plugin
-  register: r_k8s_plugin_sa_secret
-  ignore_errors: true
-  until:
-  - r_k8s_plugin_sa_secret is defined
-  - r_k8s_plugin_sa_secret.resources is defined
-  - r_k8s_plugin_sa_secret.resources | length > 0
-  - r_k8s_plugin_sa_secret.resources[0] is defined
-  - r_k8s_plugin_sa_secret.resources[0].data is defined
-  - r_k8s_plugin_sa_secret.resources[0].data.token is defined
-  - r_k8s_plugin_sa_secret.resources[0].data.token | length > 0
