@@ -34,6 +34,10 @@
   - r_root_token.resources[0].data.token is defined
   - r_root_token.resources[0].data.token | length > 0
 
+- name: Setup Gitlab
+  ansible.builtin.include_tasks:
+    file: ./setup_gitlab.yml
+
 - name: Decode root token
   ansible.builtin.set_fact:
     _rhpds_build_secured_dev_workflows_developer_hub_gitlab_root_token: "{{ r_root_token.resources[0].data.token | b64decode }}"
