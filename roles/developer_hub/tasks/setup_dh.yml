@@ -22,9 +22,8 @@
   loop: "{{ rhpds_build_secured_dev_workflows_developer_hub_templating_files }}"
   loop_control:
     loop_var: location
-
-- name: Set Developer Hub environment variables
-  set_fact:
+  vars:
+    rhads_dh_ingress_domain: "{{ openshift_cluster_ingress_domain }}"
     rhads_dh_quay_backstage_registry: "{{ rhads_secured_dev_workflows_developer_hub_quay_registry }}"
     rhads_dh_quay_backstage_image: "{{ rhads_secured_dev_workflows_developer_hub_quay_image }}"
     rhads_dh_quay_backstage_image_tag: "{{ rhads_secured_dev_workflows_developer_hub_quay_image_tag }}"
