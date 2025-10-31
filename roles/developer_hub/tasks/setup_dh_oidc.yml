@@ -6,7 +6,7 @@
     validate_certs: false
     body_format: json
     headers:
-      Authorization: Bearer {{ _keycloak_access_token }}
+      Authorization: Bearer {{ _rhpds_build_secured_dev_workflows_developer_hub_keycloak_access_token }}
     body:
       clientId: "{{ rhpds_build_secured_dev_workflows_developer_hub_keycloak_client_id }}"
       enabled: true
