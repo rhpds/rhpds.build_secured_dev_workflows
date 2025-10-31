@@ -1,7 +1,8 @@
 ---
 - name: Get Realm Management role
   uri:
-    url: https://{{ _rhpds_build_secured_dev_workflows_developer_hub_keycloak_host }}/admin/realms/trusted-artifact-signer/clients/{{
+    url: https://{{ _rhpds_build_secured_dev_workflows_developer_hub_keycloak_host }}/admin/realms/{{
+      rhpds_build_secured_dev_workflows_developer_hub_authentication_realm }}/clients/{{
       _rhpds_build_secured_dev_workflows_developer_hub_dh_rm_client_id }}/roles/{{ _role }}
     method: GET
     validate_certs: false
@@ -11,7 +12,8 @@
 
 - name: Import role to service account
   uri:
-    url: https://{{ _rhpds_build_secured_dev_workflows_developer_hub_keycloak_host }}/admin/realms/trusted-artifact-signer/users/{{
+    url: https://{{ _rhpds_build_secured_dev_workflows_developer_hub_keycloak_host }}/admin/realms/{{
+      rhpds_build_secured_dev_workflows_developer_hub_authentication_realm }}/users/{{
       _rhpds_build_secured_dev_workflows_developer_hub_dh_sa_id }}/role-mappings/clients/{{ _rhpds_build_secured_dev_workflows_developer_hub_dh_rm_client_id }}
     method: POST
     validate_certs: false
