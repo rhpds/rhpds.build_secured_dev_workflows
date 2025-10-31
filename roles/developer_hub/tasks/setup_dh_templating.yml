@@ -37,3 +37,4 @@
     git add . && git commit -m "Templating process completed..." && git push
   args:
     chdir: ~/{{ location.repository }}
+  ignore_errors: true
