@@ -25,10 +25,6 @@
   ansible.builtin.include_tasks:
     file: ./setup_gitlab.yml
 
-- name: Setup TPA
-  ansible.builtin.include_tasks:
-    file: ./setup_tpa.yml
-
 - name: Setup Devspaces
   ansible.builtin.include_tasks:
     file: ./setup_devspaces.yml
