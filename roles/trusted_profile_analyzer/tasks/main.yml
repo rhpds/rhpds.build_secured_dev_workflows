@@ -38,4 +38,5 @@
   - keycloak_tpa_cli_credentials.yml
   - keycloak_tpa_realm.yml
   - tpa_instance.yml
+  - tpa-secret.yml
   delegate_to: bastion

@@ -16,9 +16,6 @@
       openshift_cluster_ingress_domain }}
     _rhpds_build_secured_dev_workflows_developer_hub_keycloak_host: sso.{{
       openshift_cluster_ingress_domain }}
-    _rhpds_build_secured_dev_workflows_developer_hub_tpa_host: server-{{
-      rhpds_build_secured_dev_workflows_developer_hub_tpa_namespace }}.{{
-      openshift_cluster_ingress_domain }}
 
 - name: Setup ACS
   ansible.builtin.include_tasks:
