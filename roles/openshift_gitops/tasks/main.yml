@@ -28,15 +28,15 @@
   kubernetes.core.helm:
     state: present
     name: argocd
-    namespace: janus-argocd
+    namespace: tssc-gitops
     chart_ref: ~/infra-bootstrap/charts/gitops-operator
     values:
       namespaces:
-        - janus-argocd
+        - tssc-gitops
         - openshift-gitops
       projects:
         - name: janus
-          namespace: janus-argocd
+          namespace: tssc-gitops
           role: automation
     create_namespace: true
   register: r_helm_gitops
@@ -61,12 +61,12 @@
   retries: 120
   delay: 10
 
-- name: Wait until ArgoCD janus-argocd secrets are ready
+- name: Wait until ArgoCD tssc-gitops secrets are ready
   kubernetes.core.k8s_info:
     api_version: v1
     kind: Secret
     name: "{{ item }}"
-    namespace: janus-argocd
+    namespace: tssc-gitops
   loop:
   - argocd-cluster
   - argocd-secret
@@ -89,7 +89,7 @@
       stringData:
         admin.password: "{{ rhpds_build_secured_dev_workflows_openshfit_gitops_argocd_password }}"
   loop:
-  - janus-argocd
+  - tssc-gitops
   - openshift-gitops
   register: r_patch_secret
   until: r_patch_secret is succeeded
@@ -104,7 +104,7 @@
     namespace: "{{ item }}"
     state: absent
   loop:
-  - janus-argocd
+  - tssc-gitops
   - openshift-gitops
   register: r_delete_secret
   until: r_delete_secret is succeeded
