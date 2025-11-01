@@ -35,8 +35,8 @@
     src: "{{ item }}.j2"
     dest: "/home/{{ student_name }}/lab-assets/{{ item }}"
   loop:
-  - keycloak_tpa_cli_credentials.yml
-  - keycloak_tpa_realm.yml
-  - tpa_instance.yml
+  - keycloak-tpa-cli-credentials.yml
+  - keycloak-tpa-realm.yml
+  - tpa-instance.yml
   - tpa-secret.yml
   delegate_to: bastion
