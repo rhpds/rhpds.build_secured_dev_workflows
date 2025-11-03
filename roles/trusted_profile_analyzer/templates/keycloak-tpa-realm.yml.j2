@@ -488,7 +488,7 @@ spec:
           - 'delete:document'
         bearerOnly: false
         implicitFlowEnabled: false
-        secret: {{ rhpds_build_secured_dev_workflows_trusted_profile_analyzer_keycloak_cli_client_secret }}
+        secret: ${TPA_CLI_CLIENT_SECRET}
         notBefore: 0
         nodeReRegistrationTimeout: -1
         publicClient: false
@@ -547,12 +547,12 @@ spec:
           - tpa-manager
         notBefore: 0
         groups: []
-        username: {{ rhpds_build_secured_dev_workflows_trusted_profile_analyzer_admin_username }}
+        username: ${TPA_ADMIN_USER}
         totp: false
         credentials:
           - temporary: false
             type: password
-            value: {{ rhpds_build_secured_dev_workflows_trusted_profile_analyzer_admin_password }}
+            value: ${TPA_ADMIN_PASSWORD}
         requiredActions: []
       - disableableCredentialTypes: []
         enabled: true
