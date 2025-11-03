@@ -223,6 +223,14 @@ spec:
           access.token.lifespan: '300'
           post.logout.redirect.uris: +
         protocol: openid-connect
+        protocolMappers:
+          - config:
+              access.token.claim: "true"
+              introspection.token.claim: "true"
+            consentRequired: false
+            name: sub
+            protocol: openid-connect
+            protocolMapper: oidc-sub-mapper
         webOrigins:
           - '*'
         consentRequired: false
