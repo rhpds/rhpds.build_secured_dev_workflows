@@ -47,7 +47,6 @@
     data:
       tpa_admin_username: "{{ rhpds_build_secured_dev_workflows_trusted_profile_analyzer_admin_username }}"
       tpa_admin_password: "{{ rhpds_build_secured_dev_workflows_trusted_profile_analyzer_admin_password }}"
-      tpa_cli_client_id: "{{ rhpds_build_secured_dev_workflows_trusted_profile_analyzer_keycloak_cli_client_id }}"
       tpa_cli_client_secret: "{{ rhpds_build_secured_dev_workflows_trusted_profile_analyzer_keycloak_cli_client_secret }}"
   loop: "{{ range(0, rhpds_build_secured_dev_workflows_trusted_profile_analyzer_num_users | int) | list }}"
   loop_control:
