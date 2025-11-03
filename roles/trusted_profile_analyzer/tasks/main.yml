@@ -47,6 +47,7 @@
     dest: "/home/{{ student_name }}/lab-assets/example-sbom.json"
     mode: "0660"
     owner: "{{ ansible_user }}"
+  delegate_to: bastion
 
 - name: Save user information for TPA configuration
   agnosticd.core.agnosticd_user_info:
