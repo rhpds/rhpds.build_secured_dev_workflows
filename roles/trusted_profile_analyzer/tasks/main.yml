@@ -41,6 +41,13 @@
   - tpa-secret.yml
   delegate_to: bastion
 
+- name: Copy example SBOM to lab assets
+  ansible.builtin.copy:
+    src: files/example-sbom.json
+    dest: "/home/{{ student_name }}/lab-assets/example-sbom.json"
+    mode: "0660"
+    owner: "{{ ansible_user }}"
+
 - name: Save user information for TPA configuration
   agnosticd.core.agnosticd_user_info:
     user: "{{ rhpds_build_secured_dev_workflows_trusted_profile_analyzer_username_base }}{{ n + 1 }}"
