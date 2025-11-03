@@ -1,7 +1,8 @@
 apiVersion: k8s.keycloak.org/v2alpha1
 kind: KeycloakRealmImport
 metadata:
-  name: tpa
+  name: {{ rhpds_build_secured_dev_workflows_trusted_profile_analyzer_keycloak_realm }}
+  namespace: tssc-keycloak
 spec:
   keycloakCRName: keycloak
   realm:
@@ -45,7 +46,7 @@ spec:
         clientAuthenticatorType: client-secret
         fullScopeAllowed: false
         redirectUris:
-          - /realms/tpa/account/*
+          - /realms/chicken/account/*
         frontchannelLogout: false
         serviceAccountsEnabled: false
         clientId: account
@@ -75,14 +76,14 @@ spec:
         webOrigins: []
         consentRequired: false
         directAccessGrantsEnabled: false
-        baseUrl: /realms/tpa/account/
+        baseUrl: /realms/chicken/account/
         surrogateAuthRequired: false
         alwaysDisplayInConsole: false
       - enabled: true
         clientAuthenticatorType: client-secret
         fullScopeAllowed: false
         redirectUris:
-          - /realms/tpa/account/*
+          - /realms/chicken/account/*
         frontchannelLogout: false
         serviceAccountsEnabled: false
         clientId: account-console
@@ -119,7 +120,7 @@ spec:
             protocol: openid-connect
             protocolMapper: oidc-audience-resolve-mapper
         directAccessGrantsEnabled: false
-        baseUrl: /realms/tpa/account/
+        baseUrl: /realms/chicken/account/
         surrogateAuthRequired: false
         alwaysDisplayInConsole: false
       - enabled: true
@@ -193,8 +194,8 @@ spec:
         fullScopeAllowed: true
         redirectUris:
           - 'http://localhost:8080'
-          - 'https://server-{{ rhpds_build_secured_dev_workflows_trusted_profile_analyzer_namespace }}.{{ openshift_cluster_ingress_domain}}'
-          - 'https://server-{{ rhpds_build_secured_dev_workflows_trusted_profile_analyzer_namespace }}.{{ openshift_cluster_ingress_domain}}/*'
+          - 'https://server-{{ rhpds_build_secured_dev_workflows_trusted_profile_analyzer_namespace }}.{{ openshift_cluster_ingress_domain }}'
+          - 'https://server-{{ rhpds_build_secured_dev_workflows_trusted_profile_analyzer_namespace }}.{{ openshift_cluster_ingress_domain }}/*'
         frontchannelLogout: false
         serviceAccountsEnabled: false
         clientId: frontend
@@ -273,7 +274,7 @@ spec:
         clientAuthenticatorType: client-secret
         fullScopeAllowed: false
         redirectUris:
-          - /admin/tpa/console/*
+          - /admin/chicken/console/*
         frontchannelLogout: false
         serviceAccountsEnabled: false
         clientId: security-admin-console
@@ -318,7 +319,7 @@ spec:
             protocol: openid-connect
             protocolMapper: oidc-usermodel-attribute-mapper
         directAccessGrantsEnabled: false
-        baseUrl: /admin/tpa/console/
+        baseUrl: /admin/chicken/console/
         surrogateAuthRequired: false
         alwaysDisplayInConsole: false
       - enabled: false
@@ -487,7 +488,7 @@ spec:
           - 'delete:document'
         bearerOnly: false
         implicitFlowEnabled: false
-        secret: ${TPA_CLI_CLIENT_SECRET}
+        secret: {{ rhpds_build_secured_dev_workflows_trusted_profile_analyzer_keycloak_cli_client_secret }}
         notBefore: 0
         nodeReRegistrationTimeout: -1
         publicClient: false
@@ -541,24 +542,24 @@ spec:
         enabled: true
         emailVerified: false
         realmRoles:
-          - default-roles-tpa
-          - tpa-admin
-          - tpa-manager
+          - default-roles-chicken
+          - chicken-admin
+          - chicken-manager
         notBefore: 0
         groups: []
-        username: ${TPA_ADMIN_USER}
+        username: {{ rhpds_build_secured_dev_workflows_trusted_profile_analyzer_admin_username }}
         totp: false
         credentials:
           - temporary: false
             type: password
-            value: ${TPA_ADMIN_PASSWORD}
+            value: {{ rhpds_build_secured_dev_workflows_trusted_profile_analyzer_admin_password }}
         requiredActions: []
       - disableableCredentialTypes: []
         enabled: true
         emailVerified: false
         realmRoles:
-          - default-roles-tpa
-          - tpa-manager
+          - default-roles-chicken
+          - chicken-manager
         notBefore: 0
         groups: []
         username: service-account-testing-manager
@@ -569,8 +570,8 @@ spec:
         enabled: true
         emailVerified: false
         realmRoles:
-          - default-roles-tpa
-          - tpa-manager
+          - default-roles-chicken
+          - chicken-manager
         notBefore: 0
         groups: []
         username: service-account-testing-user
@@ -581,8 +582,8 @@ spec:
         enabled: true
         emailVerified: false
         realmRoles:
-          - default-roles-tpa
-          - tpa-manager
+          - default-roles-chicken
+          - chicken-manager
         notBefore: 0
         groups: []
         username: service-account-cli
@@ -1369,7 +1370,7 @@ spec:
             - manage-account
             - view-groups
     clientOfflineSessionIdleTimeout: 0
-    realm: tpa
+    realm: {{ rhpds_build_secured_dev_workflows_trusted_profile_analyzer_keycloak_realm }}
     registrationAllowed: true
     webAuthnPolicyRpEntityName: keycloak
     userManagedAccessAllowed: false
@@ -1513,7 +1514,7 @@ spec:
       clientRole: false
       composite: true
       description: '${role_default-roles}'
-      name: default-roles-tpa
+      name: default-roles-chicken
     oauth2DevicePollingInterval: 5
     webAuthnPolicySignatureAlgorithms:
       - ES256
@@ -1527,10 +1528,10 @@ spec:
     scopeMappings:
       - clientScope: 'delete:document'
         roles:
-          - tpa-manager
+          - chicken-manager
       - clientScope: 'create:document'
         roles:
-          - tpa-manager
+          - chicken-manager
       - clientScope: offline_access
         roles:
           - offline_access
@@ -1743,18 +1744,18 @@ spec:
                 - view-profile
             realm:
               - offline_access
-              - tpa-user
+              - chicken-user
               - uma_authorization
           description: '${role_default-roles}'
-          name: default-roles-tpa
+          name: default-roles-chicken
         - attributes: {}
           clientRole: false
           composite: false
-          name: tpa-manager
+          name: chicken-manager
         - attributes: {}
           clientRole: false
           composite: false
-          name: tpa-user
+          name: chicken-user
         - attributes: {}
           clientRole: false
           composite: false
@@ -1768,7 +1769,7 @@ spec:
         - attributes: {}
           clientRole: false
           composite: false
-          name: tpa-admin
+          name: chicken-admin
     webAuthnPolicyRpId: ''
     requiredActions:
       - alias: CONFIGURE_TOTP
