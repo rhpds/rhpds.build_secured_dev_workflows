@@ -29,7 +29,7 @@
     data:
       tas_chains_realm: "{{ rhpds_build_secured_dev_workflows_trusted_artifact_signer_chains_realm }}"
       tas_sso_realm: "{{ rhpds_build_secured_dev_workflows_trusted_artifact_signer_sso_realm }}"
-      tas_chains_client_id: "{{ rhpds_build_secured_dev_workflows_trusted_artifact_signer_chains_client_id }}"
+      tas_chains_client_id: "{{ rhpds_build_secured_dev_workflows_trusted_artifact_signer_client_id }}"
   loop: "{{ range(0, rhpds_build_secured_dev_workflows_trusted_artifact_signer_num_users | int) | list }}"
   loop_control:
     loop_var: n
