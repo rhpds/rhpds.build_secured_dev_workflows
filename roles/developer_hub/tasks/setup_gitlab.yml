@@ -68,8 +68,10 @@
   until: r_group_user.status == 201
   loop: "{{ r_users.json }}"
 
-- name: Create Gitlab auth secret
-  kubernetes.core.k8s:
-    state: present
-    namespace: tssc-app-ci
-    template: "gitlab-auth-secret.yml.j2"
+- name: Template out DH assets
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: "/home/{{ student_name }}/lab-assets/{{ item }}"
+  loop:
+  - gitlab-auth-secret.yml.j2
+  delegate_to: bastion

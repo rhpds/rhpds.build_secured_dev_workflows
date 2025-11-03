@@ -1105,8 +1105,8 @@ spec:
         authenticationFlowBindingOverrides: {}
         bearerOnly: false
         clientAuthenticatorType: client-secret
-        clientId: {{ rhpds_build_secured_dev_workflows_trusted_profile_analyzer_keycloak_cli_client_id }}
-        secret: {{ rhpds_build_secured_dev_workflows_trusted_profile_analyzer_keycloak_cli_client_secret }}
+        clientId: ${TPA_CLI_CLIENT_ID}
+        secret: ${TPA_CLI_CLIENT_SECRET}
         consentRequired: false
         defaultClientScopes:
           - web-origins
@@ -1644,10 +1644,10 @@ spec:
     supportedLocales: []
     userManagedAccessAllowed: false
     users:
-      - username: {{ rhpds_build_secured_dev_workflows_trusted_profile_analyzer_admin_username }}
+      - username: ${TPA_ADMIN_USERNAME}
         credentials:
           - type: password
-            value: {{ rhpds_build_secured_dev_workflows_trusted_profile_analyzer_admin_password }}
+            value: ${TPA_ADMIN_PASSWORD}
             temporary: false
         disableableCredentialTypes: []
         emailVerified: false

@@ -124,12 +124,12 @@ spec:
   oidc:
     clients:
       cli:
-        clientId: cli
+        clientId: ${TPA_CLI_CLIENT_ID}
         clientSecret:
           valueFrom:
             secretKeyRef:
-              key: cli
-              name: tpa-realm-{{ rhpds_build_secured_dev_workflows_trusted_profile_analyzer_keycloak_realm }}-clients
+              key: ${TPA_CLI_CLIENT_ID}
+              name: tpa-realm-${TPA_CLI_CLIENT_ID}-clients
       frontend:
         clientId: frontend
     issuerUrl: 'https://sso.{{ openshift_cluster_ingress_domain }}/realms/{{ rhpds_build_secured_dev_workflows_trusted_profile_analyzer_keycloak_realm }}'

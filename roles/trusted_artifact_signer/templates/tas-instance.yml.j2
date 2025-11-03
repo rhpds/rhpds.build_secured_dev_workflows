@@ -15,13 +15,13 @@ spec:
       organizationName: TSSC
     config:
       OIDCIssuers:
-        - ClientID: {{ rhpds_build_secured_dev_workflows_trusted_artifact_signer_client_id }}
-          Issuer: 'https://sso.{{ openshift_cluster_ingress_domain }}/realms/{{ rhpds_build_secured_dev_workflows_trusted_artifact_signer_chains_realm }}'
-          IssuerURL: 'https://sso.{{ openshift_cluster_ingress_domain }}/realms/{{ rhpds_build_secured_dev_workflows_trusted_artifact_signer_chains_realm }}'
+        - ClientID: ${TAS_CHAINS_CLIENT_ID}
+          Issuer: 'https://sso.{{ openshift_cluster_ingress_domain }}/realms/${TAS_CHAINS_REALM}'
+          IssuerURL: 'https://sso.{{ openshift_cluster_ingress_domain }}/realms/${TAS_CHAINS_REALM}'
           Type: email
-        - ClientID: {{ rhpds_build_secured_dev_workflows_trusted_artifact_signer_client_id }}
-          Issuer: 'https://sso.{{ openshift_cluster_ingress_domain }}/realms/{{ rhpds_build_secured_dev_workflows_trusted_artifact_signer_sso_realm }}'
-          IssuerURL: 'https://sso.{{ openshift_cluster_ingress_domain }}/realms/{{ rhpds_build_secured_dev_workflows_trusted_artifact_signer_sso_realm }}'
+        - ClientID: ${TAS_CHAINS_CLIENT_ID}
+          Issuer: 'https://sso.{{ openshift_cluster_ingress_domain }}/realms/${TAS_SSO_REALM}'
+          IssuerURL: 'https://sso.{{ openshift_cluster_ingress_domain }}/realms/${TAS_SSO_REALM}'
           Type: email
     ctlog:
       port: 80
