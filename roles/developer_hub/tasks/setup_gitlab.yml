@@ -73,5 +73,5 @@
     src: "{{ item }}.j2"
     dest: "/home/{{ student_name }}/lab-assets/{{ item }}"
   loop:
-  - gitlab-auth-secret.yml.j2
+  - gitlab-auth-secret.yml
   delegate_to: bastion
