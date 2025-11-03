@@ -2,7 +2,6 @@ apiVersion: k8s.keycloak.org/v2alpha1
 kind: KeycloakRealmImport
 metadata:
   name: {{ rhpds_build_secured_dev_workflows_trusted_profile_analyzer_keycloak_realm }}
-  namespace: tssc-keycloak
 spec:
   keycloakCRName: keycloak
   realm:
@@ -1370,7 +1369,7 @@ spec:
             - manage-account
             - view-groups
     clientOfflineSessionIdleTimeout: 0
-    realm: {{ rhpds_build_secured_dev_workflows_trusted_profile_analyzer_keycloak_realm }}
+    realm: chicken
     registrationAllowed: true
     webAuthnPolicyRpEntityName: keycloak
     userManagedAccessAllowed: false
