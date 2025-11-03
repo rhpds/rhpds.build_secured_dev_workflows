@@ -21,6 +21,7 @@
       metadata:
         name: "{{ item }}"
   loop:
+  - tssc-tas
   - tssc-app-ci
   - tssc-app-development
   - tssc-app-prod

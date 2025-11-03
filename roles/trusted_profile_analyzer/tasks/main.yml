@@ -56,6 +56,8 @@
       tpa_admin_username: "{{ rhpds_build_secured_dev_workflows_trusted_profile_analyzer_admin_username }}"
       tpa_admin_password: "{{ rhpds_build_secured_dev_workflows_trusted_profile_analyzer_admin_password }}"
       tpa_cli_client_secret: "{{ rhpds_build_secured_dev_workflows_trusted_profile_analyzer_keycloak_cli_client_secret }}"
+      tpa_client_realm: "{{ rhpds_build_secured_dev_workflows_trusted_profile_analyzer_keycloak_realm }}"
+      tpa_server_url: https://server-{{ rhpds_build_secured_dev_workflows_trusted_profile_analyzer_namespace }}.{{ openshift_cluster_ingress_domain }}
   loop: "{{ range(0, rhpds_build_secured_dev_workflows_trusted_profile_analyzer_num_users | int) | list }}"
   loop_control:
     loop_var: n
