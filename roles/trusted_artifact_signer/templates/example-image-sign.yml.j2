@@ -10,6 +10,7 @@ spec:
   pipelineSpec:
     tasks:
       - name: build-and-push
+        retries: 3
         taskSpec:
           results:
           - name: IMAGE_DIGEST
