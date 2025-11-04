@@ -72,3 +72,14 @@
     body:
       name: tssc
     status_code: 201
+
+- name: Save user information for user access
+  agnosticd.core.agnosticd_user_info:
+    user: "{{ rhpds_build_secured_dev_workflows_developer_hub_user_base_name }}{{ n + 1 }}"
+    data:
+      keycloak_admin_console: "{{ lookup('agnosticd_user_data', 'keycloak_admin_console') | default('') }}"
+      keycloak_admin_user: "{{ lookup('agnosticd_user_data', 'keycloak_admin_user') | default('') }}"
+      keycloak_admin_password: "{{ lookup('agnosticd_user_data', 'keycloak_admin_password') | default('') }}"
+  loop: "{{ range(0, rhpds_build_secured_dev_workflows_developer_hub_num_users | int) | list }}"
+  loop_control:
+    loop_var: n
