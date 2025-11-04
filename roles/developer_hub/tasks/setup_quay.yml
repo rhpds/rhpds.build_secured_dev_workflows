@@ -167,10 +167,6 @@
         path: /imagePullSecrets/-
         value:
           name: tssc-image-registry-auth
-      - op: add
-        path: /secrets/-
-        value:
-          name: tssc-image-registry-auth
   loop:
     - tssc-app-ci
     - tssc-app-development
@@ -184,6 +180,8 @@
     namespace: tssc-app-ci
     patch:
       - op: add
-        path: /imagePullSecrets/-
+        path: /secrets/-
         value:
           name: tssc-image-registry-auth
+  loop:
+    - tssc-app-ci
