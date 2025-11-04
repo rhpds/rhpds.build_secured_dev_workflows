@@ -17,6 +17,10 @@
     _rhpds_build_secured_dev_workflows_developer_hub_keycloak_host: sso.{{
       openshift_cluster_ingress_domain }}
 
+- name: Setup Nginx
+  ansible.builtin.include_tasks:
+    file: ./setup_nginx.yml
+
 - name: Setup ACS
   ansible.builtin.include_tasks:
     file: ./setup_rhacs.yml

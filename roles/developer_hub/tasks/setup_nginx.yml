@@ -1,0 +1,69 @@
+---
+- name: Create Nginx namespace
+  kubernetes.core.k8s:
+    state: present
+    namespace: "{{ rhpds_build_secured_dev_workflows_developer_hub_nginx_namespace }}"
+    template: nginx-namespace.yml.j2
+
+- name: Deploy Nginx
+  kubernetes.core.k8s:
+    state: present
+    namespace: "{{ rhpds_build_secured_dev_workflows_developer_hub_nginx_namespace }}"
+    definition: "{{ lookup('file', item) | from_yaml }}"
+  loop:
+  - nginx-pvc.yml.j2
+  - nginx-deployment.yml.j2
+  - nginx-svc.yml.j2
+
+- name: Wait until Nginx is fully up and running
+  k8s_info:
+    api_version: v1
+    kind: Deployment
+    name: nginx
+    namespace: "{{ rhpds_build_secured_dev_workflows_developer_hub_nginx_namespace }}"
+  register: r_nginx
+  retries: 60
+  delay: 10
+  until:
+  - r_nginx.resources[0].status is defined
+  - r_nginx.resources[0].status.readyReplicas is defined
+  - r_nginx.resources[0].status.readyReplicas == r_nginx.resources[0].spec.replicas
+
+- name: Copy Nginx webhook proxy pass config to host
+  ansible.builtin.copy:
+    src: files/nginx-webhook-proxy-pass.conf
+    dest: /tmp/nginx-webhook-proxy-pass.conf
+  delegate_to: bastion
+
+- name: Get Nginx pod and ensure it's running
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Pod
+    namespace: "{{ rhpds_build_secured_dev_workflows_developer_hub_nginx_namespace }}"
+    label_selectors:
+    - app = nginx
+  register: r_nginx_pod
+  retries: 40
+  delay: 5
+  until:
+  - r_nginx_pod.resources is defined
+  - r_nginx_pod.resources | length == 1
+  - r_nginx_pod.resources[0].status is defined
+  - r_nginx_pod.resources[0].status.phase is defined
+  - r_nginx_pod.resources[0].status.phase == "Running"
+
+- name: Copy Nginx webhook proxy pass to container
+  shell: |
+    NGINX_POD={{ r_nginx_pod.resources[0].metadata.name }}
+
+    oc cp /tmp/nginx-webhook-proxy-pass.conf {{ rhpds_build_secured_dev_workflows_developer_hub_nginx_namespace
+    }}/$NGINX_POD:/opt/app-root/etc/nginx.d/webhook.conf -c nginx
+  delegate_to: bastion
+
+- name: Restart Nginx
+  kubernetes.core.k8s_exec:
+    namespace: "{{ rhpds_build_secured_dev_workflows_developer_hub_nginx_namespace }}"
+    pod: "{{ r_nginx_pod.resources[0].metadata.name }}"
+    command: >-
+      nginx -s stop
+  ignore_errors: true
