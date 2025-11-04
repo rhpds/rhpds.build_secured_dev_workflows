@@ -156,29 +156,28 @@
   - dockerconfigjson: "{{ _dockerconfigjson_readonly }}"
     namespace: tssc-app-prod
 
-- name: Link secret tssc-image-registry-auth to pipeline service account
+- name: Patch pipeline service account with imagePullSecrets
   kubernetes.core.k8s:
     state: present
     kind: ServiceAccount
     name: pipeline
     namespace: "{{ item }}"
-    merge_type:
-      - strategic-merge
-      - merge
-    definition: >-
-      {{
-        {
-          "imagePullSecrets": [ { "name": "tssc-image-registry-auth" } ]
-        }
-        | combine(
-            item == "tssc-app-ci"
-            | ternary(
-                { "secrets": [ { "name": "tssc-image-registry-auth" } ] },
-                {}
-              )
-          )
-      }}
+    merge_type: strategic-merge
+    patch:
+      imagePullSecrets:
+        - name: tssc-image-registry-auth
   loop:
-  - tssc-app-ci
-  - tssc-app-development
-  - tssc-app-prod
+    - tssc-app-ci
+    - tssc-app-development
+    - tssc-app-prod
+
+- name: Add push secret to pipeline service account for tssc-app-ci
+  kubernetes.core.k8s:
+    state: present
+    kind: ServiceAccount
+    name: pipeline
+    namespace: tssc-app-ci
+    merge_type: strategic-merge
+    patch:
+      secrets:
+        - name: tssc-image-registry-auth
