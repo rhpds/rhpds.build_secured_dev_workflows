@@ -157,27 +157,33 @@
     namespace: tssc-app-prod
 
 - name: Patch pipeline service account with imagePullSecrets
-  kubernetes.core.k8s:
-    state: present
+  kubernetes.core.k8s_json_patch:
+    api_version: v1
     kind: ServiceAccount
     name: pipeline
     namespace: "{{ item }}"
-    merge_type: strategic-merge
     patch:
-      imagePullSecrets:
-        - name: tssc-image-registry-auth
+      - op: add
+        path: /imagePullSecrets/-
+        value:
+          name: tssc-image-registry-auth
+      - op: add
+        path: /secrets/-
+        value:
+          name: tssc-image-registry-auth
   loop:
     - tssc-app-ci
     - tssc-app-development
     - tssc-app-prod
 
 - name: Add push secret to pipeline service account for tssc-app-ci
-  kubernetes.core.k8s:
-    state: present
+  kubernetes.core.k8s_json_patch:
+    api_version: v1
     kind: ServiceAccount
     name: pipeline
     namespace: tssc-app-ci
-    merge_type: strategic-merge
     patch:
-      secrets:
-        - name: tssc-image-registry-auth
+      - op: add
+        path: /imagePullSecrets/-
+        value:
+          name: tssc-image-registry-auth
