@@ -23,7 +23,9 @@
     command: >-
       psql -d quay-quay-database -c "update public.oauthaccesstoken set expires_at = '2300-12-31 00:00:00' where id = 1;"
   register: _r_ext__quay_token_exp
-  until: _r_ext__quay_token_exp.rc == 0
+  until:
+  - _r_ext__quay_token_exp.rc is defined
+  - _r_ext__quay_token_exp.rc == 0
   retries: 5
   delay: 30
 
