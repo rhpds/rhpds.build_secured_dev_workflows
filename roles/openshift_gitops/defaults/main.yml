@@ -4,3 +4,4 @@ rhpds_build_secured_dev_workflows_openshfit_gitops_infra_bootstrap_repo: https:/
 rhpds_build_secured_dev_workflows_openshfit_gitops_infra_bootstrap_repo_revision: main
 rhpds_build_secured_dev_workflows_openshfit_gitops_argocd_password: "{{
   common_password | default(lookup('password', '/dev/null chars=ascii_letters,digits '~ 'length=' ~ 10)) }}"
+rhpds_build_secured_dev_workflows_openshift_gitops_num_users: 1
