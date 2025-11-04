@@ -73,6 +73,27 @@
       name: tssc
     status_code: 201
 
+- name: Find user1
+  uri:
+    url: "https://{{ _rhpds_build_secured_dev_workflows_developer_hub_keycloak_host }}/admin/realms/{{
+      rhpds_build_secured_dev_workflows_developer_hub_authentication_realm }}/users?username=user1"
+    method: GET
+    headers:
+      Authorization: "Bearer {{ _rhpds_build_secured_dev_workflows_developer_hub_keycloak_access_token }}"
+    return_content: true
+    validate_certs: false
+  register: r_user_lookup
+
+- name: Delete user1 by ID
+  uri:
+    url: "https://{{ _rhpds_build_secured_dev_workflows_developer_hub_keycloak_host }}/admin/realms/{{
+      rhpds_build_secured_dev_workflows_developer_hub_authentication_realm }}/users/{{ r_user_lookup.json[0].id }}"
+    method: DELETE
+    headers:
+      Authorization: "Bearer {{ _rhpds_build_secured_dev_workflows_developer_hub_keycloak_access_token }}"
+    status_code: 204
+    validate_certs: false
+
 - name: Save user information for user access
   agnosticd.core.agnosticd_user_info:
     user: "{{ rhpds_build_secured_dev_workflows_developer_hub_user_base_name }}{{ n + 1 }}"
