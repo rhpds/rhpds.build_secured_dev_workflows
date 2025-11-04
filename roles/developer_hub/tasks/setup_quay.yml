@@ -169,7 +169,7 @@
           "imagePullSecrets": [ { "name": "tssc-image-registry-auth" } ]
         }
         | combine(
-            ns == "tssc-app-ci"
+            item == "tssc-app-ci"
             | ternary(
                 { "secrets": [ { "name": "tssc-image-registry-auth" } ] },
                 {}
@@ -177,6 +177,6 @@
           )
       }}
   loop:
-  - namespace: tssc-app-ci
-  - namespace: tssc-app-development
-  - namespace: tssc-app-prod
+  - tssc-app-ci
+  - tssc-app-development
+  - tssc-app-prod
