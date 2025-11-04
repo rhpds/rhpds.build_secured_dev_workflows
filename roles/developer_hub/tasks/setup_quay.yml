@@ -100,15 +100,10 @@
       Authorization: "Bearer {{ _rhpds_build_secured_dev_workflows_developer_hub_quay_token }}"
     status_code: 200
 
-- name: Get robot tokens
-  ansible.builtin.set_fact:
-    _rhpds_build_secured_dev_workflows_developer_hub_quay_rw_token: "{{ robot_create_results.results[0].json.token | b64decode }}"
-    _rhpds_build_secured_dev_workflows_developer_hub_quay_ro_token: "{{ robot_create_results.results[1].json.token | b64decode }}"
-
 - name: Create auth b64
   ansible.builtin.set_fact:
-    _rhpds_build_secured_dev_workflows_developer_hub_quay_rw_auth_b64: "{{ ('tssc+tssc_rw:' + _rhpds_build_secured_dev_workflows_developer_hub_quay_rw_token) | b64encode }}"
-    _rhpds_build_secured_dev_workflows_developer_hub_quay_ro_auth_b64: "{{ ('tssc+tssc_ro:' + _rhpds_build_secured_dev_workflows_developer_hub_quay_ro_token) | b64encode }}"
+    _rhpds_build_secured_dev_workflows_developer_hub_quay_rw_auth_b64: "{{ ('tssc+tssc_rw:' + robot_create_results.results[0].json.token) | b64encode }}"
+    _rhpds_build_secured_dev_workflows_developer_hub_quay_ro_auth_b64: "{{ ('tssc+tssc_ro:' + robot_create_results.results[1].json.token) | b64encode }}"
 
 - name: Set docker auth tokens for write and read pretty
   ansible.builtin.set_fact:
@@ -119,7 +114,7 @@
             _rhpds_build_secured_dev_workflows_developer_hub_quay_host: {
               "auth": _rhpds_build_secured_dev_workflows_developer_hub_quay_rw_auth_b64,
               "email": "admin@" + openshift_cluster_ingress_domain,
-              "password": _rhpds_build_secured_dev_workflows_developer_hub_quay_rw_token,
+              "password": robot_create_results.results[0].json.token,
               "username": "tssc+tssc_rw"
             }
           }
@@ -132,7 +127,7 @@
             _rhpds_build_secured_dev_workflows_developer_hub_quay_host: {
               "auth": _rhpds_build_secured_dev_workflows_developer_hub_quay_ro_auth_b64,
               "email": "admin@" + openshift_cluster_ingress_domain,
-              "password": _rhpds_build_secured_dev_workflows_developer_hub_quay_ro_token,
+              "password": robot_create_results.results[1].json.token,
               "username": "tssc+tssc_ro"
             }
           }

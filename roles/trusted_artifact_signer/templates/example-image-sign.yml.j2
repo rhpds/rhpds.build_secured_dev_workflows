@@ -10,15 +10,12 @@ spec:
   pipelineSpec:
     tasks:
       - name: build-and-push
-        retries: 3
         taskSpec:
           results:
           - name: IMAGE_DIGEST
             description: "Digest of the pushed image"
           - name: IMAGE_URL
             description: "Same as IMAGE, used in payload"
-          metadata: {}
-          spec: null
           steps:
             - computeResources: {}
               image: 'quay.io/containers/aio:latest'
@@ -27,17 +24,31 @@ spec:
                 privileged: true
               script: |
                 #!/bin/sh
-                IMAGE="${IMAGE}"
-
-                # Build a minimal dummy image
-                echo "FROM registry.access.redhat.com/ubi9/ubi-minimal" > Dockerfile
-                echo "RUN echo 'Hello Tekton Chains!' > /tmp/message.txt" >> Dockerfile
-                buildah bud -t quay-{{ guid }}.{{ openshift_cluster_ingress_domain }}/tssc/tekton-chains-test:latest .
-
-                # Push the image to Quay
+                IMAGE="quay-{{ guid }}.{{ openshift_cluster_ingress_domain }}/tssc/tekton-chains-test:latest"
                 DIGEST_FILE=$(mktemp)
-                buildah push --digestfile $DIGEST_FILE quay-{{ guid }}.{{ openshift_cluster_ingress_domain }}/tssc/tekton-chains-test:latest
+                MAX_RETRIES=5
+                COUNT=0
+
+                until [ $COUNT -ge $MAX_RETRIES ]
+                do
+                  # Build the image
+                  echo "FROM registry.access.redhat.com/ubi9/ubi-minimal" > Dockerfile
+                  echo "RUN echo 'Hello Tekton Chains!' > /tmp/message.txt" >> Dockerfile
+                  buildah bud -t $IMAGE .
+
+                  # Push the image
+                  if buildah push --digestfile $DIGEST_FILE $IMAGE; then
+                    break
+                  fi
+
+                  COUNT=$((COUNT+1))
+                  sleep 5
+                done
+
+                if [ $COUNT -ge $MAX_RETRIES ]; then
+                  exit 1
+                fi
 
                 DIGEST=$(cat $DIGEST_FILE)
                 echo -n "$DIGEST" > $(results.IMAGE_DIGEST.path)
-                echo -n "quay-{{ guid }}.{{ openshift_cluster_ingress_domain }}/tssc/tekton-chains-test" > $(results.IMAGE_URL.path)
+                echo -n "$IMAGE" > $(results.IMAGE_URL.path)
