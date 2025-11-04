@@ -3,7 +3,7 @@ kind: KeycloakRealmImport
 metadata:
   labels:
     app: keycloak
-  name: {{ rhpds_build_secured_dev_workflows_trusted_profile_analyzer_keycloak_realm }}
+  name: ${TPA_REALM}
 spec:
   keycloakCRName: keycloak
   realm:
@@ -821,7 +821,7 @@ spec:
         attributes:
           post.logout.redirect.uris: +
         authenticationFlowBindingOverrides: {}
-        baseUrl: /realms/{{ rhpds_build_secured_dev_workflows_trusted_profile_analyzer_keycloak_realm }}/account/
+        baseUrl: /realms/${TPA_REALM}/account/
         bearerOnly: false
         clientAuthenticatorType: client-secret
         clientId: account
@@ -848,7 +848,7 @@ spec:
         protocol: openid-connect
         publicClient: true
         redirectUris:
-          - /realms/{{ rhpds_build_secured_dev_workflows_trusted_profile_analyzer_keycloak_realm }}/account/*
+          - /realms/${TPA_REALM}/account/*
         rootUrl: ${authBaseUrl}
         serviceAccountsEnabled: false
         standardFlowEnabled: true
@@ -859,7 +859,7 @@ spec:
           pkce.code.challenge.method: S256
           post.logout.redirect.uris: +
         authenticationFlowBindingOverrides: {}
-        baseUrl: /realms/{{ rhpds_build_secured_dev_workflows_trusted_profile_analyzer_keycloak_realm }}/account/
+        baseUrl: /realms/${TPA_REALM}/account/
         bearerOnly: false
         clientAuthenticatorType: client-secret
         clientId: account-console
@@ -892,7 +892,7 @@ spec:
             protocolMapper: oidc-audience-resolve-mapper
         publicClient: true
         redirectUris:
-          - /realms/{{ rhpds_build_secured_dev_workflows_trusted_profile_analyzer_keycloak_realm }}/account/*
+          - /realms/${TPA_REALM}/account/*
         rootUrl: ${authBaseUrl}
         serviceAccountsEnabled: false
         standardFlowEnabled: true
@@ -1050,7 +1050,7 @@ spec:
           pkce.code.challenge.method: S256
           post.logout.redirect.uris: +
         authenticationFlowBindingOverrides: {}
-        baseUrl: /admin/{{ rhpds_build_secured_dev_workflows_trusted_profile_analyzer_keycloak_realm }}/console/
+        baseUrl: /admin/${TPA_REALM}/console/
         bearerOnly: false
         clientAuthenticatorType: client-secret
         clientId: security-admin-console
@@ -1090,7 +1090,7 @@ spec:
             protocolMapper: oidc-usermodel-attribute-mapper
         publicClient: true
         redirectUris:
-          - /admin/{{ rhpds_build_secured_dev_workflows_trusted_profile_analyzer_keycloak_realm }}/console/*
+          - /admin/${TPA_REALM}/console/*
         rootUrl: ${authAdminUrl}
         serviceAccountsEnabled: false
         standardFlowEnabled: true

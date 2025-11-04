@@ -17,11 +17,11 @@ spec:
       OIDCIssuers:
         - ClientID: ${TAS_CHAINS_CLIENT_ID}
           Issuer: 'https://sso.{{ openshift_cluster_ingress_domain }}/realms/${TAS_CHAINS_REALM}'
-          IssuerURL: 'https://sso.{{ openshift_cluster_ingress_domain }}/realms/${TAS_CHAINS_REALM}'
+          IssuerURL: '${KEYCLOAK_URL}/realms/${TAS_CHAINS_REALM}'
           Type: email
         - ClientID: ${TAS_CHAINS_CLIENT_ID}
           Issuer: 'https://sso.{{ openshift_cluster_ingress_domain }}/realms/${TAS_SSO_REALM}'
-          IssuerURL: 'https://sso.{{ openshift_cluster_ingress_domain }}/realms/${TAS_SSO_REALM}'
+          IssuerURL: '${KEYCLOAK_URL}/realms/${TAS_SSO_REALM}'
           Type: email
     ctlog:
       port: 80

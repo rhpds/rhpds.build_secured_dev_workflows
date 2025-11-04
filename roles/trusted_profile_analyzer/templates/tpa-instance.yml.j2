@@ -132,7 +132,7 @@ spec:
               name: tpa-realm-cli-clients
       frontend:
         clientId: frontend
-    issuerUrl: 'https://sso.{{ openshift_cluster_ingress_domain }}/realms/tpa'
+    issuerUrl: '${KEYCLOAK_URL}/realms/${TPA_REALM}'
   tls:
     additionalTrustAnchor: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
     serviceEnabled: true

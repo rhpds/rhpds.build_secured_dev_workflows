@@ -21,6 +21,7 @@
   - oidc-refresher-app.yml
   - tekton-chains-patch.yml
   - tas-instance.yml
+  - example-image-sign.yml
   delegate_to: bastion
 
 - name: Save user information for TAS configuration

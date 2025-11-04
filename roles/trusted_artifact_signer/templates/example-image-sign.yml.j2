@@ -1,0 +1,42 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  annotations:
+    chains.tekton.dev/transparency-upload: "true"
+  generateName: chains-signing-image-test-
+spec:
+  taskRunTemplate:
+    serviceAccountName: chains-signing-image-tester
+  pipelineSpec:
+    tasks:
+      - name: build-and-push
+        taskSpec:
+          results:
+          - name: IMAGE_DIGEST
+            description: "Digest of the pushed image"
+          - name: IMAGE_URL
+            description: "Same as IMAGE, used in payload"
+          metadata: {}
+          spec: null
+          steps:
+            - computeResources: {}
+              image: 'quay.io/containers/aio:latest'
+              name: buildah-build
+              securityContext:
+                privileged: true
+              script: |
+                #!/bin/sh
+                IMAGE="${IMAGE}"
+
+                # Build a minimal dummy image
+                echo "FROM registry.access.redhat.com/ubi9/ubi-minimal" > Dockerfile
+                echo "RUN echo 'Hello Tekton Chains!' > /tmp/message.txt" >> Dockerfile
+                buildah bud -t quay-{{ guid }}.{{ openshift_cluster_ingress_domain }}/tssc/tekton-chains-test:latest .
+
+                # Push the image to Quay
+                DIGEST_FILE=$(mktemp)
+                buildah push --digestfile $DIGEST_FILE quay-{{ guid }}.{{ openshift_cluster_ingress_domain }}/tssc/tekton-chains-test:latest
+
+                DIGEST=$(cat $DIGEST_FILE)
+                echo -n "$DIGEST" > $(results.IMAGE_DIGEST.path)
+                echo -n "quay-{{ guid }}.{{ openshift_cluster_ingress_domain }}/tssc/tekton-chains-test" > $(results.IMAGE_URL.path)
