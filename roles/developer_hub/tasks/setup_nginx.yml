@@ -11,9 +11,9 @@
     namespace: "{{ rhpds_build_secured_dev_workflows_developer_hub_nginx_namespace }}"
     definition: "{{ lookup('file', item) | from_yaml }}"
   loop:
-  - nginx-pvc.yml.j2
-  - nginx-deployment.yml.j2
-  - nginx-svc.yml.j2
+  - nginx-pvc.yml
+  - nginx-deployment.yml
+  - nginx-svc.yml
 
 - name: Wait until Nginx is fully up and running
   k8s_info:
