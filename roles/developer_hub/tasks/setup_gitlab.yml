@@ -12,10 +12,18 @@
     - r_gitlab_init_info.resources | length > 0
     - r_gitlab_init_info.resources[0].status is defined
     - r_gitlab_init_info.resources[0].status.phase is defined
-    - r_gitlab_init_info.resources[0].status.phase == "Succeeded" or r_gitlab_init_info.resources[0].status.phase == "Failed"
+    - r_gitlab_init_info.resources[0].status.phase == "Succeeded"
   register: r_gitlab_init_info
   retries: 120
   delay: 10
+
+- name: Retrieve Gitlab root private token
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Secret
+    name: root-user-personal-token
+    namespace: "{{ rhpds_build_secured_dev_workflows_developer_hub_gitlab_namespace }}"
+  register: r_root_token
 
 - name: Decode root token
   ansible.builtin.set_fact:
