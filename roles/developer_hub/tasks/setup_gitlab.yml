@@ -5,7 +5,7 @@
     kind: Pod
     namespace: "{{ rhpds_build_secured_dev_workflows_developer_hub_gitlab_namespace }}"
     label_selectors:
-      batch.kubernetes.io/job-name: initialize-gitlab
+    - batch.kubernetes.io/job-name = initialize-gitlab
   until:
     - r_gitlab_init_info.resources | length > 0
     - r_gitlab_init_info.resources[0].status is defined
