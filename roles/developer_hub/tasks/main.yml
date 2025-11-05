@@ -53,8 +53,6 @@
     user: "{{ rhpds_build_secured_dev_workflows_trusted_artifact_signer_username_base }}{{ n + 1 }}"
     data:
       developer_hub_url: "https://{{ _rhpds_build_secured_dev_workflows_developer_hub_host }}"
-      developer_hub_user: "{{ rhpds_build_secured_dev_workflows_developer_hub_user_base_name }}{{ rhpds_build_secured_dev_workflows_developer_hub_num_users + 1 }}"
-      developer_hub_user_password: "{{ rhpds_build_secured_dev_workflows_developer_hub_user_password }}"
   loop: "{{ range(0, rhpds_build_secured_dev_workflows_developer_hub_num_users | int) | list }}"
   loop_control:
     loop_var: n
