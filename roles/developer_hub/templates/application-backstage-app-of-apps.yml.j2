@@ -18,10 +18,10 @@ spec:
       - name: backstage.app.chart
         value: {{ rhpds_build_secured_dev_workflows_developer_hub_helm_chart }}
       - name: backstage.app.valueFile
-        value: https://{{ _rhpds_build_secured_dev_workflows_developer_hub_gitlab_host }}/gitops/build_secured_dev_workflows_idp_gitops/-/raw/main/charts/backstage/backstage-values.yaml
+        value: https://{{ _rhpds_build_secured_dev_workflows_developer_hub_gitlab_host }}/gitops/build-secured-dev-workflows-idp-gitops/-/raw/main/charts/backstage/backstage-values.yaml
       - name: backstage.app.targetRevision
         value: {{ rhpds_build_secured_dev_workflows_developer_hub_helm_chart_version }}
-    repoURL: https://{{ _rhpds_build_secured_dev_workflows_developer_hub_gitlab_host }}/gitops/build_secured_dev_workflows_idp_gitops.git
+    repoURL: https://{{ _rhpds_build_secured_dev_workflows_developer_hub_gitlab_host }}/gitops/build-secured-dev-workflows-idp-gitops.git
     targetRevision: main
     path: charts/backstage
   destination:
