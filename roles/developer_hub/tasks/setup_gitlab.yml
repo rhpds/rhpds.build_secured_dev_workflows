@@ -14,7 +14,7 @@
     - r_gitlab_init_info.resources[0].status.phase is defined
     - r_gitlab_init_info.resources[0].status.phase == "Succeeded" or r_gitlab_init_info.resources[0].status.phase == "Failed"
   register: r_gitlab_init_info
-  retries: 60
+  retries: 120
   delay: 10
 
 - name: Decode root token
