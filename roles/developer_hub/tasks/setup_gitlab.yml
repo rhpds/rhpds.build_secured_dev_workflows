@@ -1,21 +1,19 @@
 ---
-- name: Retrieve Gitlab root private token
+- name: Get the pod with label 'batch.kubernetes.io/job-name=initialize-gitlab' and check its status
   kubernetes.core.k8s_info:
     api_version: v1
-    kind: Secret
-    name: root-user-personal-token
+    kind: Pod
     namespace: "{{ rhpds_build_secured_dev_workflows_developer_hub_gitlab_namespace }}"
-  register: r_root_token
-  retries: 120
-  delay: 10
+    label_selectors:
+      batch.kubernetes.io/job-name: initialize-gitlab
   until:
-  - r_root_token is defined
-  - r_root_token.resources is defined
-  - r_root_token.resources | length > 0
-  - r_root_token.resources[0] is defined
-  - r_root_token.resources[0].data is defined
-  - r_root_token.resources[0].data.token is defined
-  - r_root_token.resources[0].data.token | length > 0
+    - r_gitlab_init_info.resources | length > 0
+    - r_gitlab_init_info.resources[0].status is defined
+    - r_gitlab_init_info.resources[0].status.phase is defined
+    - r_gitlab_init_info.resources[0].status.phase == "Succeeded"
+  register: r_gitlab_init_info
+  retries: 60
+  delay: 10
 
 - name: Decode root token
   ansible.builtin.set_fact:
