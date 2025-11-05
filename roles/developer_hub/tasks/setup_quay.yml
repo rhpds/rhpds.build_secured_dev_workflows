@@ -185,3 +185,15 @@
           name: tssc-image-registry-auth
   loop:
     - tssc-app-ci
+
+- name: Save user information for user access
+  agnosticd.core.agnosticd_user_info:
+    user: "{{ rhpds_build_secured_dev_workflows_developer_hub_user_base_name }}{{ n + 1 }}"
+    data:
+      quay_host: "{{ _rhpds_build_secured_dev_workflows_developer_hub_quay_host | default('') }}"
+      quay_url: https://{{ _rhpds_build_secured_dev_workflows_developer_hub_quay_host | default('') }}
+      quay_admin_user: "{{ rhpds_build_secured_dev_workflows_developer_hub_quay_admin_user | default('') }}"
+      quay_admin_password: "{{ rhpds_build_secured_dev_workflows_developer_hub_quay_admin_password | default('') }}"
+  loop: "{{ range(0, rhpds_build_secured_dev_workflows_developer_hub_num_users | int) | list }}"
+  loop_control:
+    loop_var: n

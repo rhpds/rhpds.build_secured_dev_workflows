@@ -1,6 +1,5 @@
 ---
 rhpds_build_secured_dev_workflows_developer_hub_quay_namespace: quay-enterprise
-rhpds_build_secured_dev_workflows_developer_hub_gitlab_namespace: gitlab
 rhpds_build_secured_dev_workflows_developer_hub_namespace: backstage
 rhpds_build_secured_dev_workflows_developer_hub_argocd_namespace: tssc-gitops
 rhpds_build_secured_dev_workflows_developer_hub_keycloak_namespace: tssc-keycloak
@@ -46,9 +45,16 @@ rhpds_build_secured_dev_workflows_developer_hub_user_password: ""
 
 rhpds_build_secured_dev_workflows_developer_hub_rhacs_namespace: stackrox
 rhpds_build_secured_dev_workflows_developer_hub_rhacs_admin_user: admin
-rhpds_build_secured_dev_workflows_developer_hub_acs_admin_password: ""
+rhpds_build_secured_dev_workflows_developer_hub_rhacs_admin_password: "{{ common_password }}"
 
 rhpds_build_secured_dev_workflows_developer_hub_argocd_user: admin
-rhpds_build_secured_dev_workflows_developer_hub_argocd_password: ""
+rhpds_build_secured_dev_workflows_developer_hub_argocd_password: "{{ common_password }}"
+
+rhpds_build_secured_dev_workflows_developer_hub_gitlab_namespace: gitlab
+rhpds_build_secured_dev_workflows_developer_hub_gitlab_root_user: root
+rhpds_build_secured_dev_workflows_developer_hub_gitlab_root_password: "{{ common_password }}"
+
+rhpds_build_secured_dev_workflows_developer_hub_quay_admin_user: quayadmin
+rhpds_build_secured_dev_workflows_developer_hub_quay_admin_password: "{{ common_password }}"
 
 rhpds_build_secured_dev_workflows_developer_hub_nginx_namespace: nginx
