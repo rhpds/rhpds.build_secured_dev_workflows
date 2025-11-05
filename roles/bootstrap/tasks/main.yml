@@ -25,3 +25,10 @@
   - tssc-app-ci
   - tssc-app-development
   - tssc-app-prod
+
+- name: Patch StorageCluster resources
+  kubernetes.core.k8s:
+    name: ocs-external-storagecluster
+    namespace: openshift-storage
+    state: present
+    definition: "{{ rhpds_build_secured_dev_workflows_bootstrap_storagecluster_resources }}"
