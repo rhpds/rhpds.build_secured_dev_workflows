@@ -7,10 +7,12 @@
     label_selectors:
     - batch.kubernetes.io/job-name = initialize-gitlab
   until:
+    - r_gitlab_init_info is defined
+    - r_gitlab_init_info.resources is defined
     - r_gitlab_init_info.resources | length > 0
     - r_gitlab_init_info.resources[0].status is defined
     - r_gitlab_init_info.resources[0].status.phase is defined
-    - r_gitlab_init_info.resources[0].status.phase == "Succeeded"
+    - r_gitlab_init_info.resources[0].status.phase == "Succeeded" or r_gitlab_init_info.resources[0].status.phase == "Failed"
   register: r_gitlab_init_info
   retries: 60
   delay: 10
