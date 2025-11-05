@@ -1,28 +1,3 @@
 ---
 rhpds_build_secured_dev_workflows_bootstrap_openshift_api_url: "{{ openshift_api_url | default('') }}"
 rhpds_build_secured_dev_workflows_bootstrap_openshift_cluster_admin_token: "{{ openshift_cluster_admin_token | default('') }}"
-
-rhpds_build_secured_dev_workflows_bootstrap_storagecluster_resources:
-  spec:
-    resources:
-      noobaa-core:
-        limits:
-          cpu: "3"
-          memory: "4Gi"
-        requests:
-          cpu: "3"
-          memory: "4Gi"
-      noobaa-db:
-        limits:
-          cpu: "3"
-          memory: "4Gi"
-        requests:
-          cpu: "3"
-          memory: "4Gi"
-      noobaa-endpoint:
-        limits:
-          cpu: "3"
-          memory: "4Gi"
-        requests:
-          cpu: "3"
-          memory: "4Gi"
