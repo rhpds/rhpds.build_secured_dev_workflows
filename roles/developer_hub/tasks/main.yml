@@ -53,6 +53,10 @@
     user: "{{ rhpds_build_secured_dev_workflows_trusted_artifact_signer_username_base }}{{ n + 1 }}"
     data:
       developer_hub_url: "https://{{ _rhpds_build_secured_dev_workflows_developer_hub_host }}"
+      bastion_ssh_command: "ssh {{ bastion_ansible_user }}@{{ bastion_ansible_host }} -p {{ bastion_ansible_port }}"
+      bastion_public_hostname: "{{ bastion_ansible_host }}"
+      bastion_ssh_user_name: "{{ bastion_ansible_user }}"
+      bastion_ssh_password: "{{ bastion_ansible_ssh_pass }}"
   loop: "{{ range(0, rhpds_build_secured_dev_workflows_developer_hub_num_users | int) | list }}"
   loop_control:
     loop_var: n
