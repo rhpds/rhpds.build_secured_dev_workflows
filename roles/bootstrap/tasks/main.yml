@@ -24,4 +24,5 @@
   - tssc-tas
   - tssc-app-ci
   - tssc-app-development
+  - tssc-app-stage
   - tssc-app-prod
