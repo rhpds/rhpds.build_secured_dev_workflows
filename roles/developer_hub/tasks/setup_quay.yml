@@ -154,6 +154,8 @@
   - dockerconfigjson: "{{ _dockerconfigjson_readonly }}"
     namespace: tssc-app-development
   - dockerconfigjson: "{{ _dockerconfigjson_readonly }}"
+    namespace: tssc-app-stage
+  - dockerconfigjson: "{{ _dockerconfigjson_readonly }}"
     namespace: tssc-app-prod
 
 - name: Patch pipeline service account with imagePullSecrets
