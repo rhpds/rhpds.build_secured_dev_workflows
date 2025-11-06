@@ -90,7 +90,7 @@
     data:
       gitlab_url: "https://{{ _rhpds_build_secured_dev_workflows_developer_hub_gitlab_host }}"
       gitlab_root_user: "{{ rhpds_build_secured_dev_workflows_developer_hub_gitlab_root_user | default('') }}"
-      rhacs_admin_password: "{{ rhpds_build_secured_dev_workflows_developer_hub_gitlab_root_password | default('') }}"
+      gitlab_root_password: "{{ rhpds_build_secured_dev_workflows_developer_hub_gitlab_root_password | default('') }}"
   loop: "{{ range(0, rhpds_build_secured_dev_workflows_developer_hub_num_users | int) | list }}"
   loop_control:
     loop_var: n
