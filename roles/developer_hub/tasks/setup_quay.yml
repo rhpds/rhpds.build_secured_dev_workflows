@@ -170,6 +170,7 @@
   loop:
     - tssc-app-ci
     - tssc-app-development
+    - tssc-app-stage
     - tssc-app-prod
 
 - name: Add push secret to pipeline service account for tssc-app-ci
