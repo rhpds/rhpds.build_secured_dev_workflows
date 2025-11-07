@@ -48,7 +48,7 @@
   ansible.builtin.include_tasks:
     file: ./setup_dh.yml
 
-- name: Save user information for TAS configuration
+- name: Save user information
   agnosticd.core.agnosticd_user_info:
     user: "{{ rhpds_build_secured_dev_workflows_trusted_artifact_signer_username_base }}{{ n + 1 }}"
     data:
