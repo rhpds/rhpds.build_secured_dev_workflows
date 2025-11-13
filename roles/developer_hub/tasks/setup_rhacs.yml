@@ -59,8 +59,8 @@
     become: true
     ansible.builtin.lineinfile:
       path: "/home/{{ student_name }}/.bashrc"
-      regexp: "^export ROX_CENTRAL_ADDRESS="
-      line: "export ROX_CENTRAL_ADDRESS={{ _rhpds_build_secured_dev_workflows_developer_hub_rhacs_central_host }}:443"
+      regexp: "^export ROX_ENDPOINT="
+      line: "export ROX_ENDPOINT={{ _rhpds_build_secured_dev_workflows_developer_hub_rhacs_central_host }}:443"
 
   - name: Write GRPC_ENFORCE_ALPN_ENABLED to bastion env
     become: true
