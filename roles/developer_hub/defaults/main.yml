@@ -46,6 +46,7 @@ rhpds_build_secured_dev_workflows_developer_hub_user_password: ""
 rhpds_build_secured_dev_workflows_developer_hub_rhacs_namespace: stackrox
 rhpds_build_secured_dev_workflows_developer_hub_rhacs_admin_user: admin
 rhpds_build_secured_dev_workflows_developer_hub_rhacs_admin_password: "{{ common_password }}"
+rhpds_build_secured_dev_workflows_developer_hub_rhacs_cli_download_url: https://mirror.openshift.com/pub/rhacs/assets/latest/bin/Linux/roxctl
 
 rhpds_build_secured_dev_workflows_developer_hub_argocd_user: admin
 rhpds_build_secured_dev_workflows_developer_hub_argocd_password: "{{ common_password }}"
