@@ -1,4 +1,9 @@
 ---
+- name: Create kubeconfig
+  ansible.builtin.shell: |
+    oc login --token {{ openshift_cluster_admin_token }} {{
+    openshift_api_url }} --insecure-skip-tls-verify
+
 - block:
   - name: Create kubeconfig
     ansible.builtin.shell: |
