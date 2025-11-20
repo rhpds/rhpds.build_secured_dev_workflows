@@ -89,6 +89,38 @@
     rhads_dh_quay_api_token: "{{ _rhpds_build_secured_dev_workflows_developer_hub_quay_token }}"
     rhads_dh_k8s_serviceaccount_token: "{{ r_k8s_plugin_sa_secret.resources[0].data.token | b64decode }}"
 
+- name: Generate backend secret
+  ansible.builtin.set_fact:
+    _rhpds_build_secured_dev_workflows_developer_hub_backend_secret: "{{ lookup('password', '/dev/null chars=ascii_letters,digits length=24') | b64encode }}"
+
+- name: Get Vault token from secret
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Secret
+    namespace: vault
+    name: vault-token
+  register: r_vault_token_secret
+
+- name: Store Backstage secrets in Vault
+  kubernetes.core.k8s_exec:
+    namespace: vault
+    pod: vault-0
+    command: >-
+      vault kv put kv/rhads-dh
+      backend_secret="{{ _rhpds_build_secured_dev_workflows_developer_hub_backend_secret }}"
+      postgresql_password="{{ _rhpds_build_secured_dev_workflows_developer_hub_postgresql_password }}"
+      argocd_user="{{ rhpds_build_secured_dev_workflows_developer_hub_argocd_user | default('admin') }}"
+      argocd_password="{{ rhpds_build_secured_dev_workflows_developer_hub_argocd_password | default('') }}"
+      auth_oidc_client_id="{{ rhpds_build_secured_dev_workflows_developer_hub_keycloak_client_id }}"
+      auth_oidc_client_secret="{{ rhpds_build_secured_dev_workflows_developer_hub_keycloak_client_secret }}"
+      keycloak_client_id="{{ rhpds_build_secured_dev_workflows_developer_hub_keycloak_client_id }}"
+      keycloak_client_secret="{{ rhpds_build_secured_dev_workflows_developer_hub_keycloak_client_secret }}"
+      gitlab_token="{{ _rhpds_build_secured_dev_workflows_developer_hub_gitlab_root_token }}"
+      quay_api_token="{{ _rhpds_build_secured_dev_workflows_developer_hub_quay_token }}"
+      k8s_serviceaccount_token="{{ r_k8s_plugin_sa_secret.resources[0].data.token | b64decode }}"
+  environment:
+    VAULT_TOKEN: "{{ r_vault_token_secret.resources[0].data.token | b64decode }}"
+
 - name: Create Developer Hub App of Apps application
   kubernetes.core.k8s:
     state: present
