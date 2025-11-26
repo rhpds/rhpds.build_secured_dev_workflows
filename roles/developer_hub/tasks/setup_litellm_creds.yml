@@ -1,0 +1,17 @@
+---
+- name: Set LiteLLM credentials facts
+  ansible.builtin.set_fact:
+    ocp4_workload_maas_rag_example_litellm_api_url: "{{ lookup('agnosticd_user_data', 'litellm_api_base_url') | default('') }}"
+    ocp4_workload_maas_rag_example_litellm_api_key: "{{ lookup('agnosticd_user_data', 'litellm_virtual_key') | default('') }}"
+
+- name: Store LiteLLM credentials in Vault
+  kubernetes.core.k8s_exec:
+    namespace: vault
+    pod: vault-0
+    command: >-
+      vault kv put kv/litellm
+      base_url={{ ocp4_workload_maas_rag_example_litellm_api_url }}
+      virtual_key={{ ocp4_workload_maas_rag_example_litellm_api_key }}
+  when:
+  - ocp4_workload_maas_rag_example_litellm_api_url | length > 0
+  - ocp4_workload_maas_rag_example_litellm_api_key | length > 0
