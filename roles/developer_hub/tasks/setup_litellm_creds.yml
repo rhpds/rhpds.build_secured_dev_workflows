@@ -10,8 +10,8 @@
     pod: vault-0
     command: >-
       vault kv put kv/litellm
-      base_url={{ ocp4_workload_maas_rag_example_litellm_api_url }}
-      virtual_key={{ ocp4_workload_maas_rag_example_litellm_api_key }}
+      base_url={{ _rhpds_build_secured_dev_workflows_developer_hub_litellm_api_url }}
+      virtual_key={{ _rhpds_build_secured_dev_workflows_developer_hub_litellm_api_key }}
   when:
   - _rhpds_build_secured_dev_workflows_developer_hub_litellm_api_url | length > 0
   - _rhpds_build_secured_dev_workflows_developer_hub_litellm_api_key | length > 0
