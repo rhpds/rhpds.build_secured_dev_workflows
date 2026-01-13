@@ -15,13 +15,11 @@
     operator_csv: "{{ r_operator_csv.resources | selectattr('metadata.name', 'search', operator.name) | list | first | default({}) }}"
   when: r_operator_csv.resources | length > 0
 
-- name: Get operator pods in {{ operator.namespace }}
+- name: Get all pods in {{ operator.namespace }}
   kubernetes.core.k8s_info:
     api_version: v1
     kind: Pod
     namespace: "{{ operator.namespace }}"
-    label_selectors:
-      - "app={{ operator.name }}"
   register: r_operator_pods
   ignore_errors: true
 
@@ -32,12 +30,10 @@
       missing
       {%- elif operator_csv.status.phase | default('') != 'Succeeded' -%}
       failed
-      {%- elif r_operator_pods.resources | length == 0 -%}
-      no-pods
-      {%- elif r_operator_pods.resources | selectattr('status.phase', 'equalto', 'Running') | list | length != r_operator_pods.resources | length -%}
-      degraded
-      {%- else -%}
+      {%- elif operator_csv.status.phase | default('') == 'Succeeded' -%}
       healthy
+      {%- else -%}
+      unknown
       {%- endif -%}
 
 - name: Update operators validation tracking
@@ -45,14 +41,15 @@
     operators_validation: "{{ operators_validation | combine({
       'checked': operators_validation.checked + 1,
       'healthy': operators_validation.healthy + (1 if operator_status == 'healthy' else 0),
-      'degraded': operators_validation.degraded + (1 if operator_status == 'degraded' else 0),
-      'failed': operators_validation.failed + (1 if operator_status in ['missing', 'failed', 'no-pods'] else 0),
+      'degraded': operators_validation.degraded + (1 if operator_status == 'unknown' else 0),
+      'failed': operators_validation.failed + (1 if operator_status in ['missing', 'failed'] else 0),
       'details': operators_validation.details + [{
         'name': operator.name,
         'namespace': operator.namespace,
         'status': operator_status,
         'csv_phase': operator_csv.status.phase | default('N/A') if operator_csv is defined and operator_csv != {} else 'N/A',
-        'pod_count': r_operator_pods.resources | length
+        'pod_count': r_operator_pods.resources | length,
+        'csv_name': operator_csv.metadata.name | default('N/A') if operator_csv is defined and operator_csv != {} else 'N/A'
       }]
     }) }}"
 
