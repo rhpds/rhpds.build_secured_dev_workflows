@@ -3,14 +3,22 @@
 # Expected variables:
 #   - showroom_user_index: the user index (0-based)
 # Uses role defaults:
-#   - rhpds_build_secured_dev_workflows_rhads_validation_guid: environment GUID
-#   - rhpds_build_secured_dev_workflows_rhads_validation_pool_number: CNV pool number (usually 1)
 #   - rhpds_build_secured_dev_workflows_rhads_validation_username_base: base username
 
-- name: Set showroom user variables
+- name: Set showroom user name
   ansible.builtin.set_fact:
     _showroom_user_name: "{{ rhpds_build_secured_dev_workflows_rhads_validation_username_base }}{{ showroom_user_index + 1 }}"
-    _showroom_namespace: "showroom-{{ rhpds_build_secured_dev_workflows_rhads_validation_guid }}-{{ rhpds_build_secured_dev_workflows_rhads_validation_pool_number }}-{{ rhpds_build_secured_dev_workflows_rhads_validation_username_base }}{{ showroom_user_index + 1 }}"
+
+- name: Discover showroom namespace for {{ _showroom_user_name }}
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Namespace
+  register: r_all_namespaces
+  ignore_errors: true
+
+- name: Find showroom namespace matching user pattern
+  ansible.builtin.set_fact:
+    _showroom_namespace: "{{ r_all_namespaces.resources | map(attribute='metadata.name') | select('match', '^showroom-.*-' ~ _showroom_user_name ~ '$') | first | default('') }}"
 
 - name: Get Showroom deployment for {{ _showroom_user_name }} (with retry for 5 minutes)
   kubernetes.core.k8s_info:
@@ -25,6 +33,7 @@
     r_showroom_deployment.resources | length > 0 and
     r_showroom_deployment.resources[0].status.availableReplicas | default(0) > 0
   ignore_errors: true
+  when: _showroom_namespace != ''
 
 - name: Get Showroom route for {{ _showroom_user_name }}
   kubernetes.core.k8s_info:
@@ -33,6 +42,7 @@
     namespace: "{{ _showroom_namespace }}"
   register: r_showroom_routes
   ignore_errors: true
+  when: _showroom_namespace != ''
 
 - name: Get Showroom pods for {{ _showroom_user_name }}
   kubernetes.core.k8s_info:
@@ -41,6 +51,7 @@
     namespace: "{{ _showroom_namespace }}"
   register: r_showroom_pods
   ignore_errors: true
+  when: _showroom_namespace != ''
 
 - name: Get Showroom ConfigMaps for {{ _showroom_user_name }}
   kubernetes.core.k8s_info:
@@ -49,6 +60,7 @@
     namespace: "{{ _showroom_namespace }}"
   register: r_showroom_configmaps
   ignore_errors: true
+  when: _showroom_namespace != ''
 
 - name: Test Showroom route accessibility for {{ _showroom_user_name }} (with retry for 5 minutes)
   ansible.builtin.uri:
@@ -62,15 +74,17 @@
   delay: 10    # Wait 10 seconds between retries
   until: r_showroom_http_check is success
   ignore_errors: true
-  when: r_showroom_routes.resources | length > 0
+  when: _showroom_namespace != '' and r_showroom_routes.resources | length > 0
 
 - name: Evaluate Showroom health for {{ _showroom_user_name }}
   ansible.builtin.set_fact:
     _showroom_user_status: |-
-      {%- if r_showroom_http_check is defined and not r_showroom_http_check.skipped | default(false) and not r_showroom_http_check.failed -%}
+      {%- if _showroom_namespace == '' -%}
+      missing
+      {%- elif r_showroom_http_check is defined and not r_showroom_http_check.skipped | default(false) and not r_showroom_http_check.failed -%}
       healthy
       {%- elif r_showroom_deployment.resources | length == 0 -%}
-      missing
+      no-deployment
       {%- elif r_showroom_deployment.resources | selectattr('status.availableReplicas', 'defined') | selectattr('status.availableReplicas', 'greaterthan', 0) | list | length == 0 -%}
       unavailable
       {%- elif r_showroom_pods.resources | selectattr('status.phase', 'equalto', 'Running') | list | length == 0 -%}
@@ -87,15 +101,15 @@
   ansible.builtin.set_fact:
     _showroom_user_validation:
       user: "{{ _showroom_user_name }}"
-      namespace: "{{ _showroom_namespace }}"
+      namespace: "{{ _showroom_namespace if _showroom_namespace != '' else 'not-found' }}"
       status: "{{ _showroom_user_status }}"
-      deployments: "{{ r_showroom_deployment.resources | length }}"
-      available: "{{ r_showroom_deployment.resources | selectattr('status.availableReplicas', 'defined') | selectattr('status.availableReplicas', 'greaterthan', 0) | list | length }}"
-      running_pods: "{{ r_showroom_pods.resources | selectattr('status.phase', 'equalto', 'Running') | list | length }}"
-      route: "{{ r_showroom_routes.resources[0].spec.host if r_showroom_routes.resources | length > 0 else 'N/A' }}"
+      deployments: "{{ r_showroom_deployment.resources | length if r_showroom_deployment is defined and not r_showroom_deployment.skipped | default(false) else 0 }}"
+      available: "{{ r_showroom_deployment.resources | selectattr('status.availableReplicas', 'defined') | selectattr('status.availableReplicas', 'greaterthan', 0) | list | length if r_showroom_deployment is defined and not r_showroom_deployment.skipped | default(false) else 0 }}"
+      running_pods: "{{ r_showroom_pods.resources | selectattr('status.phase', 'equalto', 'Running') | list | length if r_showroom_pods is defined and not r_showroom_pods.skipped | default(false) else 0 }}"
+      route: "{{ r_showroom_routes.resources[0].spec.host if (r_showroom_routes is defined and not r_showroom_routes.skipped | default(false) and r_showroom_routes.resources | length > 0) else 'N/A' }}"
       route_accessible: "{{ not r_showroom_http_check.failed if (r_showroom_http_check is defined and not r_showroom_http_check.skipped | default(false)) else false }}"
       http_status: "{{ r_showroom_http_check.status if (r_showroom_http_check is defined and not r_showroom_http_check.skipped | default(false) and not r_showroom_http_check.failed) else 'N/A' }}"
-      content_configmaps: "{{ r_showroom_configmaps.resources | length }}"
+      content_configmaps: "{{ r_showroom_configmaps.resources | length if r_showroom_configmaps is defined and not r_showroom_configmaps.skipped | default(false) else 0 }}"
 
 - name: Append user validation to results
   ansible.builtin.set_fact:
