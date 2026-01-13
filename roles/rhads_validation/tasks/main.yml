@@ -1,8 +1,17 @@
 ---
+- name: Get cluster information
+  kubernetes.core.k8s_cluster_info:
+  register: r_cluster_info
+  ignore_errors: true
+
+- name: Set cluster API URL
+  ansible.builtin.set_fact:
+    _cluster_api_url: "{{ r_cluster_info.connection.host | default('N/A') }}"
+
 - name: Initialize validation results
   ansible.builtin.set_fact:
     rhads_validation_results:
-      cluster: "{{ openshift_api_url }}"
+      cluster: "{{ _cluster_api_url }}"
       overall_status: "healthy"
       components: {}
       issues: []
