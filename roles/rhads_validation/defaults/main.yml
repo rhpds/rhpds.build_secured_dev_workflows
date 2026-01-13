@@ -35,7 +35,7 @@ rhpds_build_secured_dev_workflows_rhads_validation_namespaces:
   - quay-registry
   - quay-enterprise
   - stackrox
-  - showroom
+  # Note: showroom namespaces are checked dynamically per user as showroom-{{ guid }}-user{{ n }}
 
 # Operators to validate (includes TAS and TPA operators)
 rhpds_build_secured_dev_workflows_rhads_validation_operators:

@@ -1,0 +1,95 @@
+---
+# Check showroom for a specific user
+# Expected variables:
+#   - showroom_user_index: the user index (0-based)
+#   - guid: environment GUID
+#   - rhpds_build_secured_dev_workflows_trusted_artifact_signer_username_base: base username
+
+- name: Set showroom user variables
+  ansible.builtin.set_fact:
+    _showroom_user_name: "{{ rhpds_build_secured_dev_workflows_trusted_artifact_signer_username_base }}{{ showroom_user_index + 1 }}"
+    _showroom_namespace: "showroom-{{ guid }}-{{ rhpds_build_secured_dev_workflows_trusted_artifact_signer_username_base }}{{ showroom_user_index + 1 }}"
+
+- name: Get Showroom deployment for {{ _showroom_user_name }}
+  kubernetes.core.k8s_info:
+    api_version: apps/v1
+    kind: Deployment
+    namespace: "{{ _showroom_namespace }}"
+  register: r_showroom_deployment
+  ignore_errors: true
+
+- name: Get Showroom route for {{ _showroom_user_name }}
+  kubernetes.core.k8s_info:
+    api_version: route.openshift.io/v1
+    kind: Route
+    namespace: "{{ _showroom_namespace }}"
+  register: r_showroom_routes
+  ignore_errors: true
+
+- name: Get Showroom pods for {{ _showroom_user_name }}
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Pod
+    namespace: "{{ _showroom_namespace }}"
+  register: r_showroom_pods
+  ignore_errors: true
+
+- name: Get Showroom ConfigMaps for {{ _showroom_user_name }}
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: ConfigMap
+    namespace: "{{ _showroom_namespace }}"
+  register: r_showroom_configmaps
+  ignore_errors: true
+
+- name: Test Showroom route accessibility for {{ _showroom_user_name }}
+  ansible.builtin.uri:
+    url: "https://{{ r_showroom_routes.resources[0].spec.host }}"
+    method: GET
+    validate_certs: false
+    status_code: [200, 301, 302]
+    timeout: 10
+  register: r_showroom_http_check
+  ignore_errors: true
+  when: r_showroom_routes.resources | length > 0
+
+- name: Evaluate Showroom health for {{ _showroom_user_name }}
+  ansible.builtin.set_fact:
+    _showroom_user_status: |-
+      {%- if r_showroom_deployment.resources | length == 0 -%}
+      missing
+      {%- elif r_showroom_deployment.resources | selectattr('status.availableReplicas', 'defined') | selectattr('status.availableReplicas', 'greaterthan', 0) | list | length == 0 -%}
+      unavailable
+      {%- elif r_showroom_pods.resources | selectattr('status.phase', 'equalto', 'Running') | list | length == 0 -%}
+      no-running-pods
+      {%- elif r_showroom_routes.resources | length == 0 -%}
+      no-route
+      {%- elif r_showroom_http_check is defined and r_showroom_http_check.failed -%}
+      not-accessible
+      {%- else -%}
+      healthy
+      {%- endif -%}
+
+- name: Create Showroom validation result for {{ _showroom_user_name }}
+  ansible.builtin.set_fact:
+    _showroom_user_validation:
+      user: "{{ _showroom_user_name }}"
+      namespace: "{{ _showroom_namespace }}"
+      status: "{{ _showroom_user_status }}"
+      deployments: "{{ r_showroom_deployment.resources | length }}"
+      available: "{{ r_showroom_deployment.resources | selectattr('status.availableReplicas', 'defined') | selectattr('status.availableReplicas', 'greaterthan', 0) | list | length }}"
+      running_pods: "{{ r_showroom_pods.resources | selectattr('status.phase', 'equalto', 'Running') | list | length }}"
+      route: "{{ r_showroom_routes.resources[0].spec.host if r_showroom_routes.resources | length > 0 else 'N/A' }}"
+      route_accessible: "{{ not r_showroom_http_check.failed if r_showroom_http_check is defined else false }}"
+      http_status: "{{ r_showroom_http_check.status if r_showroom_http_check is defined and not r_showroom_http_check.failed else 'N/A' }}"
+      content_configmaps: "{{ r_showroom_configmaps.resources | length }}"
+
+- name: Append user validation to results
+  ansible.builtin.set_fact:
+    showroom_user_validations: "{{ showroom_user_validations + [_showroom_user_validation] }}"
+
+- name: Update counters
+  ansible.builtin.set_fact:
+    showroom_total_checked: "{{ showroom_total_checked | int + 1 }}"
+    showroom_total_healthy: "{{ showroom_total_healthy | int + (1 if _showroom_user_status == 'healthy' else 0) }}"
+    showroom_total_failed: "{{ showroom_total_failed | int + (1 if _showroom_user_status != 'healthy' else 0) }}"
