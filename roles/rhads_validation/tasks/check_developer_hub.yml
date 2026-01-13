@@ -47,7 +47,7 @@
       no-database
       {%- elif r_backstage_routes.resources | length == 0 -%}
       no-route
-      {%- elif r_backstage_http_check is defined and r_backstage_http_check.failed -%}
+      {%- elif r_backstage_http_check is defined and not r_backstage_http_check.skipped | default(false) and r_backstage_http_check.failed -%}
       not-accessible
       {%- else -%}
       healthy
@@ -60,8 +60,8 @@
       deployments: "{{ r_backstage_deployments.resources | length }}"
       available: "{{ r_backstage_deployments.resources | selectattr('status.availableReplicas', 'defined') | selectattr('status.availableReplicas', 'greaterthan', 0) | list | length }}"
       route: "{{ r_backstage_routes.resources[0].spec.host if r_backstage_routes.resources | length > 0 else 'N/A' }}"
-      route_accessible: "{{ not r_backstage_http_check.failed if r_backstage_http_check is defined else false }}"
-      http_status: "{{ r_backstage_http_check.status if r_backstage_http_check is defined and not r_backstage_http_check.failed else 'N/A' }}"
+      route_accessible: "{{ not r_backstage_http_check.failed if (r_backstage_http_check is defined and not r_backstage_http_check.skipped | default(false)) else false }}"
+      http_status: "{{ r_backstage_http_check.status if (r_backstage_http_check is defined and not r_backstage_http_check.skipped | default(false) and not r_backstage_http_check.failed) else 'N/A' }}"
       database_running: "{{ r_backstage_postgres.resources | selectattr('status.phase', 'equalto', 'Running') | list | length > 0 }}"
 
 - name: Add issue if Developer Hub unhealthy

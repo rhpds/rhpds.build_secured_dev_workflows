@@ -64,7 +64,7 @@
       no-running-pods
       {%- elif r_showroom_routes.resources | length == 0 -%}
       no-route
-      {%- elif r_showroom_http_check is defined and r_showroom_http_check.failed -%}
+      {%- elif r_showroom_http_check is defined and not r_showroom_http_check.skipped | default(false) and r_showroom_http_check.failed -%}
       not-accessible
       {%- else -%}
       healthy
@@ -80,8 +80,8 @@
       available: "{{ r_showroom_deployment.resources | selectattr('status.availableReplicas', 'defined') | selectattr('status.availableReplicas', 'greaterthan', 0) | list | length }}"
       running_pods: "{{ r_showroom_pods.resources | selectattr('status.phase', 'equalto', 'Running') | list | length }}"
       route: "{{ r_showroom_routes.resources[0].spec.host if r_showroom_routes.resources | length > 0 else 'N/A' }}"
-      route_accessible: "{{ not r_showroom_http_check.failed if r_showroom_http_check is defined else false }}"
-      http_status: "{{ r_showroom_http_check.status if r_showroom_http_check is defined and not r_showroom_http_check.failed else 'N/A' }}"
+      route_accessible: "{{ not r_showroom_http_check.failed if (r_showroom_http_check is defined and not r_showroom_http_check.skipped | default(false)) else false }}"
+      http_status: "{{ r_showroom_http_check.status if (r_showroom_http_check is defined and not r_showroom_http_check.skipped | default(false) and not r_showroom_http_check.failed) else 'N/A' }}"
       content_configmaps: "{{ r_showroom_configmaps.resources | length }}"
 
 - name: Append user validation to results

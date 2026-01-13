@@ -48,7 +48,7 @@
       unavailable
       {%- elif r_argocd_route.resources | length == 0 -%}
       no-route
-      {%- elif r_argocd_http_check is defined and r_argocd_http_check.failed -%}
+      {%- elif r_argocd_http_check is defined and not r_argocd_http_check.skipped | default(false) and r_argocd_http_check.failed -%}
       not-accessible
       {%- elif r_argocd_apps.resources | selectattr('status.sync.status', 'defined') | selectattr('status.sync.status', 'equalto', 'OutOfSync') | list | length > 0 -%}
       out-of-sync
@@ -64,8 +64,8 @@
         'status': argocd_instance_status,
         'server_available': r_argocd_server.resources[0].status.availableReplicas | default(0) > 0 if r_argocd_server.resources | length > 0 else false,
         'route': r_argocd_route.resources[0].spec.host if r_argocd_route.resources | length > 0 else 'N/A',
-        'route_accessible': not r_argocd_http_check.failed if r_argocd_http_check is defined else false,
-        'http_status': r_argocd_http_check.status if r_argocd_http_check is defined and not r_argocd_http_check.failed else 'N/A',
+        'route_accessible': not r_argocd_http_check.failed if (r_argocd_http_check is defined and not r_argocd_http_check.skipped | default(false)) else false,
+        'http_status': r_argocd_http_check.status if (r_argocd_http_check is defined and not r_argocd_http_check.skipped | default(false) and not r_argocd_http_check.failed) else 'N/A',
         'total_applications': r_argocd_apps.resources | length,
         'synced_applications': r_argocd_apps.resources | selectattr('status.sync.status', 'defined') | selectattr('status.sync.status', 'equalto', 'Synced') | list | length
       }],

@@ -58,7 +58,7 @@
     keycloak_status: |-
       {%- if r_keycloak_tssc_pods.resources | selectattr('status.phase', 'equalto', 'Running') | list | length == 0 or r_keycloak_tpa_pods.resources | selectattr('status.phase', 'equalto', 'Running') | list | length == 0 -%}
       unhealthy
-      {%- elif (r_keycloak_tssc_http_check is defined and r_keycloak_tssc_http_check.failed) or (r_keycloak_tpa_http_check is defined and r_keycloak_tpa_http_check.failed) -%}
+      {%- elif (r_keycloak_tssc_http_check is defined and not r_keycloak_tssc_http_check.skipped | default(false) and r_keycloak_tssc_http_check.failed) or (r_keycloak_tpa_http_check is defined and not r_keycloak_tpa_http_check.skipped | default(false) and r_keycloak_tpa_http_check.failed) -%}
       not-accessible
       {%- else -%}
       healthy
@@ -71,11 +71,11 @@
       tssc_keycloak_pods: "{{ r_keycloak_tssc_pods.resources | length }}"
       tssc_keycloak_running: "{{ r_keycloak_tssc_pods.resources | selectattr('status.phase', 'equalto', 'Running') | list | length }}"
       tssc_keycloak_route: "{{ r_keycloak_tssc_routes.resources[0].spec.host if r_keycloak_tssc_routes.resources | length > 0 else 'N/A' }}"
-      tssc_keycloak_accessible: "{{ not r_keycloak_tssc_http_check.failed if r_keycloak_tssc_http_check is defined else false }}"
+      tssc_keycloak_accessible: "{{ not r_keycloak_tssc_http_check.failed if (r_keycloak_tssc_http_check is defined and not r_keycloak_tssc_http_check.skipped | default(false)) else false }}"
       tpa_keycloak_pods: "{{ r_keycloak_tpa_pods.resources | length }}"
       tpa_keycloak_running: "{{ r_keycloak_tpa_pods.resources | selectattr('status.phase', 'equalto', 'Running') | list | length }}"
       tpa_keycloak_route: "{{ r_keycloak_tpa_routes.resources[0].spec.host if r_keycloak_tpa_routes.resources | length > 0 else 'N/A' }}"
-      tpa_keycloak_accessible: "{{ not r_keycloak_tpa_http_check.failed if r_keycloak_tpa_http_check is defined else false }}"
+      tpa_keycloak_accessible: "{{ not r_keycloak_tpa_http_check.failed if (r_keycloak_tpa_http_check is defined and not r_keycloak_tpa_http_check.skipped | default(false)) else false }}"
 
 - name: Add issue if Keycloak unhealthy
   when: keycloak_status != 'healthy'

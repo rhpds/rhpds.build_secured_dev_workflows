@@ -36,7 +36,7 @@
       unavailable
       {%- elif r_rhacs_routes.resources | length == 0 -%}
       no-route
-      {%- elif r_rhacs_http_check is defined and r_rhacs_http_check.failed -%}
+      {%- elif r_rhacs_http_check is defined and not r_rhacs_http_check.skipped | default(false) and r_rhacs_http_check.failed -%}
       not-accessible
       {%- else -%}
       healthy
@@ -48,8 +48,8 @@
       status: "{{ rhacs_status }}"
       central_available: "{{ r_rhacs_central.resources[0].status.availableReplicas | default(0) > 0 if r_rhacs_central.resources | length > 0 else false }}"
       route: "{{ r_rhacs_routes.resources[0].spec.host if r_rhacs_routes.resources | length > 0 else 'N/A' }}"
-      route_accessible: "{{ not r_rhacs_http_check.failed if r_rhacs_http_check is defined else false }}"
-      http_status: "{{ r_rhacs_http_check.status if r_rhacs_http_check is defined and not r_rhacs_http_check.failed else 'N/A' }}"
+      route_accessible: "{{ not r_rhacs_http_check.failed if (r_rhacs_http_check is defined and not r_rhacs_http_check.skipped | default(false)) else false }}"
+      http_status: "{{ r_rhacs_http_check.status if (r_rhacs_http_check is defined and not r_rhacs_http_check.skipped | default(false) and not r_rhacs_http_check.failed) else 'N/A' }}"
 
 - name: Add issue if RHACS unhealthy
   when: rhacs_status != 'healthy'

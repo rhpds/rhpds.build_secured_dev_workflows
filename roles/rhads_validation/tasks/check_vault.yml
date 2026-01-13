@@ -35,7 +35,7 @@
       unavailable
       {%- elif r_vault_routes.resources | length == 0 -%}
       no-route
-      {%- elif r_vault_http_check is defined and r_vault_http_check.failed -%}
+      {%- elif r_vault_http_check is defined and not r_vault_http_check.skipped | default(false) and r_vault_http_check.failed -%}
       not-accessible
       {%- else -%}
       healthy
@@ -48,8 +48,8 @@
       pods: "{{ r_vault_pods.resources | length }}"
       running_pods: "{{ r_vault_pods.resources | selectattr('status.phase', 'equalto', 'Running') | list | length }}"
       route: "{{ r_vault_routes.resources[0].spec.host if r_vault_routes.resources | length > 0 else 'N/A' }}"
-      route_accessible: "{{ not r_vault_http_check.failed if r_vault_http_check is defined else false }}"
-      http_status: "{{ r_vault_http_check.status if r_vault_http_check is defined and not r_vault_http_check.failed else 'N/A' }}"
+      route_accessible: "{{ not r_vault_http_check.failed if (r_vault_http_check is defined and not r_vault_http_check.skipped | default(false)) else false }}"
+      http_status: "{{ r_vault_http_check.status if (r_vault_http_check is defined and not r_vault_http_check.skipped | default(false) and not r_vault_http_check.failed) else 'N/A' }}"
 
 - name: Add issue if Vault unhealthy
   when: vault_status != 'healthy'
