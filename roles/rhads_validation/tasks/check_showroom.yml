@@ -18,11 +18,11 @@
 - name: Evaluate overall Showroom health
   ansible.builtin.set_fact:
     showroom_status: |-
-      {%- if showroom_total_checked == 0 -%}
+      {%- if showroom_total_checked | int == 0 -%}
       missing
-      {%- elif showroom_total_failed == showroom_total_checked -%}
+      {%- elif showroom_total_failed | int == showroom_total_checked | int -%}
       all-failed
-      {%- elif showroom_total_failed > 0 -%}
+      {%- elif showroom_total_failed | int > 0 -%}
       partial-failure
       {%- else -%}
       healthy
