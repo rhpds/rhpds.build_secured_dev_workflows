@@ -1,4 +1,9 @@
 ---
+- name: Gather facts for timestamp
+  ansible.builtin.setup:
+    gather_subset:
+      - date_time
+
 - name: Initialize validation results
   ansible.builtin.set_fact:
     rhads_validation_results:
