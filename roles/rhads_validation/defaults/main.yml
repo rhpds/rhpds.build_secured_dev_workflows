@@ -39,25 +39,24 @@ rhpds_build_secured_dev_workflows_rhads_validation_namespaces:
 
 # Operators to validate (includes TAS and TPA operators)
 rhpds_build_secured_dev_workflows_rhads_validation_operators:
+  # Operators in tssc-* namespaces
   - name: rhtas-operator
     namespace: tssc-tas
   - name: rhtpa-operator
     namespace: tssc-tpa
-  - name: rhsso-operator
+  - name: rhbk-operator  # Red Hat build of Keycloak
     namespace: tssc-keycloak
-  - name: rhsso-operator
-    namespace: keycloak
-  - name: external-secrets
-    namespace: external-secrets
-  - name: quay-operator
-    namespace: quay-registry
-  - name: openshift-pipelines-operator-rh
-    namespace: openshift-operators
-  - name: rhacs-operator
-    namespace: rhacs-operator
-  - name: devspaces
+
+  # Operators in openshift-operators (AllNamespaces mode)
+  - name: devspacesoperator
     namespace: openshift-operators
   - name: openshift-gitops-operator
+    namespace: openshift-operators
+  - name: openshift-pipelines-operator-rh
+    namespace: openshift-operators
+  - name: quay-operator
+    namespace: openshift-operators
+  - name: rhacs-operator
     namespace: openshift-operators
 
 # ArgoCD instances to check
