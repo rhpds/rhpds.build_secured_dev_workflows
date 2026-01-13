@@ -2,7 +2,6 @@
 - name: Initialize validation results
   ansible.builtin.set_fact:
     rhads_validation_results:
-      timestamp: "{{ now(utc=true) | to_datetime | strftime('%Y-%m-%dT%H:%M:%SZ') }}"
       cluster: "{{ openshift_api_url }}"
       overall_status: "healthy"
       components: {}
@@ -87,7 +86,6 @@
       RHADS Environment Validation Report
       ====================================
       Status: {{ rhads_validation_results.overall_status | upper }}
-      Timestamp: {{ rhads_validation_results.timestamp }}
 
       Summary:
       - Total Components Checked: {{ rhads_validation_results.summary.total_components }}
@@ -109,7 +107,6 @@
     user: "{{ rhpds_build_secured_dev_workflows_trusted_artifact_signer_username_base }}{{ n + 1 }}"
     data:
       rhads_validation_status: "{{ rhads_validation_results.overall_status }}"
-      rhads_validation_timestamp: "{{ rhads_validation_results.timestamp }}"
       rhads_validation_summary: "{{ rhads_validation_summary }}"
       rhads_validation_total: "{{ rhads_validation_results.summary.total_components }}"
       rhads_validation_healthy: "{{ rhads_validation_results.summary.healthy }}"
