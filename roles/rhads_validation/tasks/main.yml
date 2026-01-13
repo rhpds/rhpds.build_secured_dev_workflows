@@ -103,8 +103,8 @@
       {% endif %}
 
 - name: Save validation results to user info
-  agnosticd.core.agnosticd_user_info:
-    user: "{{ rhpds_build_secured_dev_workflows_trusted_artifact_signer_username_base }}{{ n + 1 }}"
+  agnosticd_user_info:
+    user: "{{ rhpds_build_secured_dev_workflows_rhads_validation_username_base }}{{ n + 1 }}"
     data:
       rhads_validation_status: "{{ rhads_validation_results.overall_status }}"
       rhads_validation_summary: "{{ rhads_validation_summary }}"
