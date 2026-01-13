@@ -31,7 +31,7 @@
   register: r_keycloak_tpa_routes
   ignore_errors: true
 
-- name: Test tssc-keycloak route accessibility
+- name: Test tssc-keycloak route accessibility (with retry for 5 minutes)
   ansible.builtin.uri:
     url: "https://{{ r_keycloak_tssc_routes.resources[0].spec.host }}"
     method: GET
@@ -39,10 +39,13 @@
     status_code: [200, 301, 302, 303, 307]
     timeout: 10
   register: r_keycloak_tssc_http_check
+  retries: 30  # 5 minutes / 10 seconds = 30 retries
+  delay: 10    # Wait 10 seconds between retries
+  until: r_keycloak_tssc_http_check is success
   ignore_errors: true
   when: r_keycloak_tssc_routes.resources | length > 0
 
-- name: Test keycloak route accessibility
+- name: Test keycloak route accessibility (with retry for 5 minutes)
   ansible.builtin.uri:
     url: "https://{{ r_keycloak_tpa_routes.resources[0].spec.host }}"
     method: GET
@@ -50,6 +53,9 @@
     status_code: [200, 301, 302, 303, 307]
     timeout: 10
   register: r_keycloak_tpa_http_check
+  retries: 30  # 5 minutes / 10 seconds = 30 retries
+  delay: 10    # Wait 10 seconds between retries
+  until: r_keycloak_tpa_http_check is success
   ignore_errors: true
   when: r_keycloak_tpa_routes.resources | length > 0
 

@@ -25,7 +25,7 @@
   ansible.builtin.set_fact:
     routes_validation: "{{ routes_validation | combine({
       'routes_by_namespace': routes_validation.routes_by_namespace | combine({
-        item.namespace: (routes_validation.routes_by_namespace[item.namespace] | default([])) + [{
+        item.metadata.namespace: (routes_validation.routes_by_namespace[item.metadata.namespace] | default([])) + [{
           'name': item.metadata.name,
           'host': item.spec.host
         }]

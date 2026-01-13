@@ -15,7 +15,7 @@
   register: r_vault_routes
   ignore_errors: true
 
-- name: Test Vault route accessibility
+- name: Test Vault route accessibility (with retry for 5 minutes)
   ansible.builtin.uri:
     url: "https://{{ r_vault_routes.resources[0].spec.host }}"
     method: GET
@@ -23,6 +23,9 @@
     status_code: [200, 301, 302, 307]
     timeout: 10
   register: r_vault_http_check
+  retries: 30  # 5 minutes / 10 seconds = 30 retries
+  delay: 10    # Wait 10 seconds between retries
+  until: r_vault_http_check is success
   ignore_errors: true
   when: r_vault_routes.resources | length > 0
 

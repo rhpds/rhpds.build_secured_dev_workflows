@@ -28,7 +28,7 @@
   register: r_argocd_route
   ignore_errors: true
 
-- name: Test ArgoCD route accessibility in {{ argocd_namespace }}
+- name: Test ArgoCD route accessibility in {{ argocd_namespace }} (with retry for 5 minutes)
   ansible.builtin.uri:
     url: "https://{{ r_argocd_route.resources[0].spec.host }}"
     method: GET
@@ -36,6 +36,9 @@
     status_code: [200, 301, 302, 307]
     timeout: 10
   register: r_argocd_http_check
+  retries: 30  # 5 minutes / 10 seconds = 30 retries
+  delay: 10    # Wait 10 seconds between retries
+  until: r_argocd_http_check is success
   ignore_errors: true
   when: r_argocd_route.resources | length > 0
 
