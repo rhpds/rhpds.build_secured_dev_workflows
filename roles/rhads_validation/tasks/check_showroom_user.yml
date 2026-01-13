@@ -2,13 +2,15 @@
 # Check showroom for a specific user
 # Expected variables:
 #   - showroom_user_index: the user index (0-based)
-#   - guid: environment GUID
-#   - rhpds_build_secured_dev_workflows_trusted_artifact_signer_username_base: base username
+# Uses role defaults:
+#   - rhpds_build_secured_dev_workflows_rhads_validation_guid: environment GUID
+#   - rhpds_build_secured_dev_workflows_rhads_validation_pool_number: CNV pool number (usually 1)
+#   - rhpds_build_secured_dev_workflows_rhads_validation_username_base: base username
 
 - name: Set showroom user variables
   ansible.builtin.set_fact:
-    _showroom_user_name: "{{ rhpds_build_secured_dev_workflows_trusted_artifact_signer_username_base }}{{ showroom_user_index + 1 }}"
-    _showroom_namespace: "showroom-{{ guid }}-{{ rhpds_build_secured_dev_workflows_trusted_artifact_signer_username_base }}{{ showroom_user_index + 1 }}"
+    _showroom_user_name: "{{ rhpds_build_secured_dev_workflows_rhads_validation_username_base }}{{ showroom_user_index + 1 }}"
+    _showroom_namespace: "showroom-{{ rhpds_build_secured_dev_workflows_rhads_validation_guid }}-{{ rhpds_build_secured_dev_workflows_rhads_validation_pool_number }}-{{ rhpds_build_secured_dev_workflows_rhads_validation_username_base }}{{ showroom_user_index + 1 }}"
 
 - name: Get Showroom deployment for {{ _showroom_user_name }}
   kubernetes.core.k8s_info:
