@@ -7,12 +7,17 @@
   register: r_quay_registry
   ignore_errors: true
 
-- name: Get Quay pods
+- name: Get Quay pods (with retry for 5 minutes)
   kubernetes.core.k8s_info:
     api_version: v1
     kind: Pod
     namespace: quay-enterprise
   register: r_quay_pods
+  retries: 30  # 5 minutes / 10 seconds = 30 retries
+  delay: 10    # Wait 10 seconds between retries
+  until: >
+    r_quay_pods.resources | length > 0 and
+    r_quay_pods.resources | selectattr('status.phase', 'equalto', 'Running') | list | length > 0
   ignore_errors: true
 
 - name: Get Quay route
@@ -40,7 +45,9 @@
 - name: Evaluate Quay health
   ansible.builtin.set_fact:
     quay_status: |-
-      {%- if r_quay_registry.resources | length == 0 -%}
+      {%- if r_quay_http_check is defined and not r_quay_http_check.skipped | default(false) and not r_quay_http_check.failed -%}
+      healthy
+      {%- elif r_quay_registry.resources | length == 0 -%}
       missing
       {%- elif r_quay_pods.resources | selectattr('status.phase', 'equalto', 'Running') | list | length == 0 -%}
       unavailable

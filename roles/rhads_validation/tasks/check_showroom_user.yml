@@ -12,13 +12,18 @@
     _showroom_user_name: "{{ rhpds_build_secured_dev_workflows_rhads_validation_username_base }}{{ showroom_user_index + 1 }}"
     _showroom_namespace: "showroom-{{ rhpds_build_secured_dev_workflows_rhads_validation_guid }}-{{ rhpds_build_secured_dev_workflows_rhads_validation_pool_number }}-{{ rhpds_build_secured_dev_workflows_rhads_validation_username_base }}{{ showroom_user_index + 1 }}"
 
-- name: Get Showroom deployment for {{ _showroom_user_name }}
+- name: Get Showroom deployment for {{ _showroom_user_name }} (with retry for 5 minutes)
   kubernetes.core.k8s_info:
     api_version: apps/v1
     kind: Deployment
     name: showroom
     namespace: "{{ _showroom_namespace }}"
   register: r_showroom_deployment
+  retries: 30  # 5 minutes / 10 seconds = 30 retries
+  delay: 10    # Wait 10 seconds between retries
+  until: >
+    r_showroom_deployment.resources | length > 0 and
+    r_showroom_deployment.resources[0].status.availableReplicas | default(0) > 0
   ignore_errors: true
 
 - name: Get Showroom route for {{ _showroom_user_name }}
@@ -62,7 +67,9 @@
 - name: Evaluate Showroom health for {{ _showroom_user_name }}
   ansible.builtin.set_fact:
     _showroom_user_status: |-
-      {%- if r_showroom_deployment.resources | length == 0 -%}
+      {%- if r_showroom_http_check is defined and not r_showroom_http_check.skipped | default(false) and not r_showroom_http_check.failed -%}
+      healthy
+      {%- elif r_showroom_deployment.resources | length == 0 -%}
       missing
       {%- elif r_showroom_deployment.resources | selectattr('status.availableReplicas', 'defined') | selectattr('status.availableReplicas', 'greaterthan', 0) | list | length == 0 -%}
       unavailable

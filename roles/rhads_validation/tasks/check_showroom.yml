@@ -38,15 +38,18 @@
       failed_users: "{{ showroom_total_failed }}"
       user_details: "{{ showroom_user_validations }}"
 
-# Add issue if any Showroom instances are unhealthy
-- name: Add issue if Showroom unhealthy
+# Add detailed issue for each unhealthy Showroom instance
+- name: Add issue for each unhealthy Showroom instance
   when: showroom_status != 'healthy'
   ansible.builtin.set_fact:
     rhads_validation_results: "{{ rhads_validation_results | combine({
       'issues': rhads_validation_results.issues + [
-        'Showroom is ' ~ showroom_status ~ ' (' ~ showroom_total_healthy ~ '/' ~ showroom_total_checked ~ ' healthy)'
+        'Showroom (' ~ item.user ~ '): ' ~ item.status ~ ' in namespace ' ~ item.namespace
       ]
     }) }}"
+  loop: "{{ showroom_user_validations | selectattr('status', '!=', 'healthy') | list }}"
+  loop_control:
+    label: "{{ item.user }}"
 
 # Update overall validation results for Showroom
 - name: Update overall validation results for Showroom

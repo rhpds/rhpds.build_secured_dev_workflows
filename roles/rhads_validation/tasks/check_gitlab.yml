@@ -1,10 +1,15 @@
 ---
-- name: Get GitLab pods
+- name: Get GitLab pods (with retry for 5 minutes)
   kubernetes.core.k8s_info:
     api_version: v1
     kind: Pod
     namespace: gitlab
   register: r_gitlab_pods
+  retries: 30  # 5 minutes / 10 seconds = 30 retries
+  delay: 10    # Wait 10 seconds between retries
+  until: >
+    r_gitlab_pods.resources | length > 0 and
+    r_gitlab_pods.resources | selectattr('status.phase', 'equalto', 'Running') | list | length > 0
   ignore_errors: true
 
 - name: Get GitLab route
@@ -32,7 +37,9 @@
 - name: Evaluate GitLab health
   ansible.builtin.set_fact:
     gitlab_status: |-
-      {%- if r_gitlab_pods.resources | length == 0 -%}
+      {%- if r_gitlab_http_check is defined and not r_gitlab_http_check.skipped | default(false) and not r_gitlab_http_check.failed -%}
+      healthy
+      {%- elif r_gitlab_pods.resources | length == 0 -%}
       missing
       {%- elif r_gitlab_pods.resources | selectattr('status.phase', 'equalto', 'Running') | list | length == 0 -%}
       unavailable
