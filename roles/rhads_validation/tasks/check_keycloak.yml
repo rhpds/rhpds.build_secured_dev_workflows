@@ -62,9 +62,9 @@
 - name: Evaluate Keycloak health
   ansible.builtin.set_fact:
     keycloak_status: |-
-      {%- if r_keycloak_tssc_pods.resources | selectattr('status.phase', 'equalto', 'Running') | list | length == 0 or r_keycloak_tpa_pods.resources | selectattr('status.phase', 'equalto', 'Running') | list | length == 0 -%}
+      {%- if r_keycloak_tssc_pods.resources | selectattr('status.phase', 'equalto', 'Running') | list | length == 0 and r_keycloak_tpa_pods.resources | selectattr('status.phase', 'equalto', 'Running') | list | length == 0 -%}
       unhealthy
-      {%- elif (r_keycloak_tssc_http_check is defined and not r_keycloak_tssc_http_check.skipped | default(false) and r_keycloak_tssc_http_check.failed) or (r_keycloak_tpa_http_check is defined and not r_keycloak_tpa_http_check.skipped | default(false) and r_keycloak_tpa_http_check.failed) -%}
+      {%- elif (r_keycloak_tssc_http_check is defined and not r_keycloak_tssc_http_check.skipped | default(false) and r_keycloak_tssc_http_check.failed) and (r_keycloak_tpa_http_check is defined and not r_keycloak_tpa_http_check.skipped | default(false) and r_keycloak_tpa_http_check.failed) -%}
       not-accessible
       {%- else -%}
       healthy

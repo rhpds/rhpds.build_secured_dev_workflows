@@ -3,7 +3,7 @@
   kubernetes.core.k8s_info:
     api_version: quay.redhat.com/v1
     kind: QuayRegistry
-    namespace: quay-registry
+    namespace: quay-enterprise
   register: r_quay_registry
   ignore_errors: true
 

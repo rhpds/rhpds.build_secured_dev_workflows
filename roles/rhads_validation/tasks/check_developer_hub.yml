@@ -15,15 +15,17 @@
   register: r_backstage_routes
   ignore_errors: true
 
-- name: Get Developer Hub PostgreSQL
+- name: Get Developer Hub PostgreSQL pods
   kubernetes.core.k8s_info:
     api_version: v1
     kind: Pod
     namespace: backstage
-    label_selectors:
-      - "app=postgresql"
-  register: r_backstage_postgres
+  register: r_backstage_pods
   ignore_errors: true
+
+- name: Check for PostgreSQL pod
+  ansible.builtin.set_fact:
+    _postgres_pods: "{{ r_backstage_pods.resources | selectattr('metadata.name', 'search', 'postgresql') | list }}"
 
 - name: Test Developer Hub route accessibility (with retry for 5 minutes)
   ansible.builtin.uri:
@@ -46,7 +48,7 @@
       missing
       {%- elif r_backstage_deployments.resources | selectattr('status.availableReplicas', 'defined') | selectattr('status.availableReplicas', 'greaterthan', 0) | list | length == 0 -%}
       unavailable
-      {%- elif r_backstage_postgres.resources | selectattr('status.phase', 'equalto', 'Running') | list | length == 0 -%}
+      {%- elif _postgres_pods | selectattr('status.phase', 'equalto', 'Running') | list | length == 0 -%}
       no-database
       {%- elif r_backstage_routes.resources | length == 0 -%}
       no-route
@@ -65,7 +67,7 @@
       route: "{{ r_backstage_routes.resources[0].spec.host if r_backstage_routes.resources | length > 0 else 'N/A' }}"
       route_accessible: "{{ not r_backstage_http_check.failed if (r_backstage_http_check is defined and not r_backstage_http_check.skipped | default(false)) else false }}"
       http_status: "{{ r_backstage_http_check.status if (r_backstage_http_check is defined and not r_backstage_http_check.skipped | default(false) and not r_backstage_http_check.failed) else 'N/A' }}"
-      database_running: "{{ r_backstage_postgres.resources | selectattr('status.phase', 'equalto', 'Running') | list | length > 0 }}"
+      database_running: "{{ _postgres_pods | selectattr('status.phase', 'equalto', 'Running') | list | length > 0 }}"
 
 - name: Add issue if Developer Hub unhealthy
   when: developer_hub_status != 'healthy'

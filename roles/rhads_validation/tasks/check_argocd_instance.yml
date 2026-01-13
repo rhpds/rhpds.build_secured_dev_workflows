@@ -53,8 +53,6 @@
       no-route
       {%- elif r_argocd_http_check is defined and not r_argocd_http_check.skipped | default(false) and r_argocd_http_check.failed -%}
       not-accessible
-      {%- elif r_argocd_apps.resources | selectattr('status.sync.status', 'defined') | selectattr('status.sync.status', 'equalto', 'OutOfSync') | list | length > 0 -%}
-      out-of-sync
       {%- else -%}
       healthy
       {%- endif -%}
