@@ -1,0 +1,84 @@
+---
+# Check a single ArgoCD instance
+# Expected variable: argocd_namespace
+
+- name: Get ArgoCD server deployment in {{ argocd_namespace }}
+  kubernetes.core.k8s_info:
+    api_version: apps/v1
+    kind: Deployment
+    name: argocd-server
+    namespace: "{{ argocd_namespace }}"
+  register: r_argocd_server
+  ignore_errors: true
+
+- name: Get ArgoCD applications in {{ argocd_namespace }}
+  kubernetes.core.k8s_info:
+    api_version: argoproj.io/v1alpha1
+    kind: Application
+    namespace: "{{ argocd_namespace }}"
+  register: r_argocd_apps
+  ignore_errors: true
+
+- name: Get ArgoCD route in {{ argocd_namespace }}
+  kubernetes.core.k8s_info:
+    api_version: route.openshift.io/v1
+    kind: Route
+    name: argocd-server
+    namespace: "{{ argocd_namespace }}"
+  register: r_argocd_route
+  ignore_errors: true
+
+- name: Test ArgoCD route accessibility in {{ argocd_namespace }}
+  ansible.builtin.uri:
+    url: "https://{{ r_argocd_route.resources[0].spec.host }}"
+    method: GET
+    validate_certs: false
+    status_code: [200, 301, 302, 307]
+    timeout: 10
+  register: r_argocd_http_check
+  ignore_errors: true
+  when: r_argocd_route.resources | length > 0
+
+- name: Evaluate ArgoCD instance health
+  ansible.builtin.set_fact:
+    argocd_instance_status: |-
+      {%- if r_argocd_server.resources | length == 0 -%}
+      missing
+      {%- elif r_argocd_server.resources[0].status.availableReplicas | default(0) == 0 -%}
+      unavailable
+      {%- elif r_argocd_route.resources | length == 0 -%}
+      no-route
+      {%- elif r_argocd_http_check is defined and r_argocd_http_check.failed -%}
+      not-accessible
+      {%- elif r_argocd_apps.resources | selectattr('status.sync.status', 'defined') | selectattr('status.sync.status', 'equalto', 'OutOfSync') | list | length > 0 -%}
+      out-of-sync
+      {%- else -%}
+      healthy
+      {%- endif -%}
+
+- name: Add ArgoCD instance to validation results
+  ansible.builtin.set_fact:
+    argocd_validation: "{{ argocd_validation | combine({
+      'instances': argocd_validation.instances + [{
+        'namespace': argocd_namespace,
+        'status': argocd_instance_status,
+        'server_available': r_argocd_server.resources[0].status.availableReplicas | default(0) > 0 if r_argocd_server.resources | length > 0 else false,
+        'route': r_argocd_route.resources[0].spec.host if r_argocd_route.resources | length > 0 else 'N/A',
+        'route_accessible': not r_argocd_http_check.failed if r_argocd_http_check is defined else false,
+        'http_status': r_argocd_http_check.status if r_argocd_http_check is defined and not r_argocd_http_check.failed else 'N/A',
+        'total_applications': r_argocd_apps.resources | length,
+        'synced_applications': r_argocd_apps.resources | selectattr('status.sync.status', 'defined') | selectattr('status.sync.status', 'equalto', 'Synced') | list | length
+      }],
+      'total_healthy': argocd_validation.total_healthy + (1 if argocd_instance_status == 'healthy' else 0),
+      'total_degraded': argocd_validation.total_degraded + (1 if argocd_instance_status in ['out-of-sync', 'not-accessible'] else 0),
+      'total_failed': argocd_validation.total_failed + (1 if argocd_instance_status in ['missing', 'unavailable', 'no-route'] else 0)
+    }) }}"
+
+- name: Add issue if ArgoCD instance unhealthy
+  when: argocd_instance_status != 'healthy'
+  ansible.builtin.set_fact:
+    rhads_validation_results: "{{ rhads_validation_results | combine({
+      'issues': rhads_validation_results.issues + [
+        'ArgoCD in namespace ' ~ argocd_namespace ~ ' is ' ~ argocd_instance_status
+      ]
+    }) }}"
