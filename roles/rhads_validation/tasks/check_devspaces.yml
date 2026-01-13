@@ -1,0 +1,58 @@
+---
+- name: Get DevSpaces CheCluster
+  kubernetes.core.k8s_info:
+    api_version: org.eclipse.che/v2
+    kind: CheCluster
+    namespace: openshift-devspaces
+  register: r_checluster
+  ignore_errors: true
+
+- name: Get DevSpaces pods
+  kubernetes.core.k8s_info:
+    api_version: v1
+    kind: Pod
+    namespace: openshift-devspaces
+  register: r_devspaces_pods
+  ignore_errors: true
+
+- name: Evaluate DevSpaces health
+  ansible.builtin.set_fact:
+    devspaces_status: |-
+      {%- if r_checluster.resources | length == 0 -%}
+      missing
+      {%- elif r_devspaces_pods.resources | selectattr('status.phase', 'equalto', 'Running') | list | length == 0 -%}
+      unavailable
+      {%- else -%}
+      healthy
+      {%- endif -%}
+
+- name: Create DevSpaces validation result
+  ansible.builtin.set_fact:
+    devspaces_validation:
+      status: "{{ devspaces_status }}"
+      checluster_exists: "{{ r_checluster.resources | length > 0 }}"
+      pods: "{{ r_devspaces_pods.resources | length }}"
+      running_pods: "{{ r_devspaces_pods.resources | selectattr('status.phase', 'equalto', 'Running') | list | length }}"
+
+- name: Add issue if DevSpaces unhealthy
+  when: devspaces_status != 'healthy'
+  ansible.builtin.set_fact:
+    rhads_validation_results: "{{ rhads_validation_results | combine({
+      'issues': rhads_validation_results.issues + [
+        'DevSpaces is ' ~ devspaces_status
+      ]
+    }) }}"
+
+- name: Update overall validation results for DevSpaces
+  ansible.builtin.set_fact:
+    rhads_validation_results: "{{ rhads_validation_results | combine({
+      'components': rhads_validation_results.components | combine({
+        'devspaces': devspaces_validation
+      }),
+      'summary': {
+        'total_components': rhads_validation_results.summary.total_components + 1,
+        'healthy': rhads_validation_results.summary.healthy + (1 if devspaces_status == 'healthy' else 0),
+        'degraded': rhads_validation_results.summary.degraded,
+        'failed': rhads_validation_results.summary.failed + (1 if devspaces_status != 'healthy' else 0)
+      }
+    }) }}"
